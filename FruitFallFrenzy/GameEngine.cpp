@@ -1,6 +1,6 @@
 #include "GameEngine.h"
 #include "Assets.h"
-#include "Scene_Frogger.h"
+#include "Scene_FruitFall.h"
 #include "Scene_Menu.h"
 #include "Command.h"
 #include <fstream>
@@ -23,7 +23,7 @@ void GameEngine::init(const std::string& path)
     loadConfigFromFile(path, width, height);
 
 
-    _window.create(sf::VideoMode(width, height), "GEX Planes");
+    _window.create(sf::VideoMode(width, height), "Fruit Fall Frenzy");
 
     _statisticsText.setFont(Assets::getInstance().getFont("main"));
     _statisticsText.setPosition(15.0f, 5.0f);

@@ -1,6 +1,3 @@
-//
-// Created by David Burchill on 2023-09-27.
-//
 
 #pragma once
 
@@ -10,15 +7,7 @@
 #include "Entity.h"
 #include "Scene.h"
 #include "GameEngine.h"
-#include <queue>
 
-struct SpawnPoint {
-	std::string type;
-	float       y;
-	auto operator<=>(const SpawnPoint& other) const {
-		return y <=> other.y;    // sort by y. in order to use priority queue
-	}
-};
 
 struct LevelConfig {
 	float       playerSpeed{ 200.f };
@@ -28,18 +17,16 @@ struct LevelConfig {
 	float		friendsSpeed{ 10.f };
 };
 
-class Scene_Frogger : public Scene {
+class Scene_FruitFall : public Scene {
 
 	sPtrEntt                            _player{ nullptr };
 	sf::View                            _worldView;  // camera
 	sf::FloatRect                       _worldBounds;
-	std::priority_queue<SpawnPoint>     _spawnPoints;
 	bool                                _drawTextures{ true };
 	bool                                _drawAABB{ false };
 	LevelConfig                         _config;
 
 	//systems
-	void                    sSpawnNPCs();
 	void 				    sAnimation(sf::Time dt);
 	void                    sMovement(sf::Time dt);
 	void                    sCollisions();
@@ -47,11 +34,6 @@ class Scene_Frogger : public Scene {
 	void					onEnd() override;
 
 	// helper functions
-	void					checkCarsCollision();
-	void					checkLilyCollision();
-	void                    checkIfDead(sPtrEntt e);
-	void                    spawnNPCs(int carNum, SpawnPoint sp);
-	void					spawnLillyPads();
 	void	                registerActions();
 	void                    spawnPlayer(sf::Vector2f pos);
 	void                    playerMovement();
@@ -62,7 +44,7 @@ class Scene_Frogger : public Scene {
 
 
 public:
-	 Scene_Frogger(GameEngine* gameEngine, const std::string& levelPath);
+	 Scene_FruitFall(GameEngine* gameEngine, const std::string& levelPath);
 
 	 
 	 void		update(sf::Time dt) override;

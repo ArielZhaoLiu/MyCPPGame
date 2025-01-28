@@ -1,6 +1,6 @@
 # GameEngine Config
 
-Window  480 600
+Window  1500 1142
 
 Font    Arial           ../assets/fonts/arial.ttf
 Font    main            ../assets/fonts/Sansation.ttf
@@ -10,13 +10,13 @@ Music gameTheme         ../assets/Music/dp_frogger.flac
 Music missionTheme      ../assets/Music/dp_frogger_tweener.flac
 
 # Textures
-Texture Background      ../assets/Textures/background.png
+Texture Background      ../assets/Textures/bg.jpg
 Texture Title           ../assets/Textures/FroggerTitle.png
 Texture Entities        ../assets/Textures/FroggerAtlas.png
 
 # Sprites
-Sprite Background       Background   0 0  480 600
-Sprite Title            Title 0 0 480 600
+Sprite Background       Background   0 0  1500 1142
+Sprite Title            Title 0 0 1500 1142
 
 #
 # SOUNDS

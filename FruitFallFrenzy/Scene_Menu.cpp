@@ -1,5 +1,5 @@
 #include "Scene_Menu.h"
-#include "Scene_Frogger.h"
+#include "Scene_FruitFall.h"
 #include "MusicPlayer.h"
 #include <memory>
 
@@ -28,7 +28,7 @@ void Scene_Menu:: init()
 	registerAction(sf::Keyboard::D,			"PLAY");
 	registerAction(sf::Keyboard::Escape,	"QUIT");
 
-	_title = "GEX Frogger";
+	_title = "Fruit Fall Frenzy";
 	_menuStrings.push_back("Level 1");
 	_menuStrings.push_back("Level 2");
 	_menuStrings.push_back("Level 3");
@@ -65,19 +65,19 @@ void Scene_Menu::sRender()
 	sf::Text footer("UP: W    DOWN: S   PLAY:D    QUIT: ESC", 
 		Assets::getInstance().getFont("main"), 20);
 	footer.setFillColor(normalColor);
-	footer.setPosition(32, 550);
+	footer.setPosition(100, 1050);
 
 	_game->window().clear(backgroundColor);
 
 	_menuText.setFillColor(normalColor);
 	_menuText.setString(_title);
-	_menuText.setPosition(10, 10);
+	_menuText.setPosition(100, 80);
 	_game->window().draw(_menuText);
 
 	for (size_t i{ 0 }; i < _menuStrings.size(); ++i)
 	{
 		_menuText.setFillColor((i == _menuIndex ? selectedColor : normalColor));
-		_menuText.setPosition(32, 32 + (i+1) * 96);
+		_menuText.setPosition(100, 100 + (i+1) * 96);
 		_menuText.setString(_menuStrings.at(i));
 		_game->window().draw(_menuText);
 	} 
@@ -102,7 +102,7 @@ void Scene_Menu::sDoAction(const Command& action)
 		}
 		else if (action.name() == "PLAY")
 		{
-			_game->changeScene("PLAY", std::make_shared<Scene_Frogger>(_game, _levelPaths[_menuIndex]));
+			_game->changeScene("PLAY", std::make_shared<Scene_FruitFall>(_game, _levelPaths[_menuIndex]));
 		}
 		else if (action.name() == "QUIT")
 		{

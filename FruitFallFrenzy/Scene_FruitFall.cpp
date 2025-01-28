@@ -1,4 +1,4 @@
-﻿#include "Scene_Frogger.h"
+﻿#include "Scene_FruitFall.h"
 #include "MusicPlayer.h"
 #include "SoundPlayer.h"
 #include "Physics.h"
@@ -10,43 +10,27 @@
 //
 
 
-Scene_Frogger::Scene_Frogger(GameEngine* gameEngine, const std::string& levelPath)
+Scene_FruitFall::Scene_FruitFall(GameEngine* gameEngine, const std::string& levelPath)
     : Scene(gameEngine)
 {   
     init(levelPath);
 }
 
-void Scene_Frogger::init(const std::string& levelPath)
+void Scene_FruitFall::init(const std::string& levelPath)
 {
 	loadLevel(levelPath);
 	registerActions();
 
 	_worldView = _game->window().getDefaultView();
 
-	float baseY = _worldBounds.height - 60.f;
-	float rowSpacing = 40.f;
-
-	_spawnPoints.push({ "car", baseY });
-	_spawnPoints.push({ "raceCarL", baseY - rowSpacing });
-	_spawnPoints.push({ "tractor", baseY - 2 * rowSpacing });
-	_spawnPoints.push({ "raceCarR", baseY - 3 * rowSpacing });
-	_spawnPoints.push({ "truck", baseY - 4 * rowSpacing });
-
-	_spawnPoints.push({ "3turtles", baseY - 6 * rowSpacing });
-	_spawnPoints.push({ "tree1", baseY - 7 * rowSpacing });
-	_spawnPoints.push({ "tree2", baseY - 8 * rowSpacing });
-	_spawnPoints.push({ "2turtles", baseY - 9 * rowSpacing });
-	_spawnPoints.push({ "tree1", baseY - 10 * rowSpacing });
-
 	sf::Vector2f spawnPlayerPos{ _worldBounds.width / 2.f, _worldBounds.height - 20.f};
 	spawnPlayer(spawnPlayerPos);
-	spawnLillyPads();
 
 	MusicPlayer::getInstance().play("gameTheme");
 	MusicPlayer::getInstance().setVolume(50);
 }
 
-void Scene_Frogger::loadLevel(const std::string& path)
+void Scene_FruitFall::loadLevel(const std::string& path)
 {
 	std::ifstream config(path);
 	if (config.fail()) {
@@ -87,7 +71,7 @@ void Scene_Frogger::loadLevel(const std::string& path)
 	config.close();
 }
 
-void Scene_Frogger::spawnPlayer(sf::Vector2f pos)
+void Scene_FruitFall::spawnPlayer(sf::Vector2f pos)
 {
 	_player = _entityManager.addEntity("player");
 	_player->addComponent<CTransform>(pos);
@@ -98,7 +82,7 @@ void Scene_Frogger::spawnPlayer(sf::Vector2f pos)
 
 }
 
-void Scene_Frogger::registerActions()
+void Scene_FruitFall::registerActions()
 {
 	registerAction(sf::Keyboard::A, "LEFT");
 	registerAction(sf::Keyboard::Left, "LEFT");
@@ -115,7 +99,7 @@ void Scene_Frogger::registerActions()
 	registerAction(sf::Keyboard::Q, "QUIT");
 }
 
-void Scene_Frogger::sDoAction(const Command& command)
+void Scene_FruitFall::sDoAction(const Command& command)
 {
 	// On Key Press
 	if (command.type() == "START") {
@@ -177,20 +161,18 @@ void Scene_Frogger::sDoAction(const Command& command)
 
 
 
-void Scene_Frogger::sCollisions()
+void Scene_FruitFall::sCollisions()
 {
-	checkCarsCollision();
-	checkLilyCollision();
-	checkIfDead(_player);
+
 }
 
 
-void Scene_Frogger::onEnd()
+void Scene_FruitFall::onEnd()
 {
 }
 
 
-void Scene_Frogger::playerMovement()
+void Scene_FruitFall::playerMovement()
 {
 	// no movement if player is dead
 	if (_player->hasComponent<CState>() && _player->getComponent<CState>().state == "dead")
@@ -240,7 +222,7 @@ void Scene_Frogger::playerMovement()
 
 }
 
-void Scene_Frogger::annimatePlayer()
+void Scene_FruitFall::annimatePlayer()
 {
 	if (_player->getComponent<CState>().state == "dead")
 		return;
@@ -256,7 +238,7 @@ void Scene_Frogger::annimatePlayer()
 		_player->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("right");
 }
 
-void Scene_Frogger::adjustPlayerPosition(sf::Time dt)
+void Scene_FruitFall::adjustPlayerPosition(sf::Time dt)
 {
 	// don't ajust position if dead
 	if (_player->getComponent<CState>().state == "dead")
@@ -283,177 +265,7 @@ void Scene_Frogger::adjustPlayerPosition(sf::Time dt)
 	player_pos.y = std::min(player_pos.y, bot - halfSize.y);
 }
 
-void Scene_Frogger::sSpawnNPCs()
-{
-	while (!_spawnPoints.empty())
-	{
-		spawnNPCs(3, _spawnPoints.top());
-		_spawnPoints.pop();
-	}	
-}
-
-void Scene_Frogger::checkCarsCollision()
-{
-	float baseY = _worldBounds.height - 60.f;
-	float rowSpacing = 40.f;
-
-	for (auto& car : _entityManager.getEntities("car")) {
-		auto overlap = Physics::getOverlap(_player, car);
-		auto pos = _player->getComponent<CTransform>().pos;
-
-		if (pos.y <= baseY && pos.y > baseY - 6 * rowSpacing) {
-			if (overlap.x > 0 && overlap.y > 0) {
-				if (_player->getComponent<CState>().state != "dead") {
-					_player->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("die");
-					_player->getComponent<CTransform>().vel = { 0.f, 0.f };
-					//_player->removeComponent<CBoundingBox>();			
-					_player->addComponent<CState>().state = "dead";
-					SoundPlayer::getInstance().play("death");
-				}
-			}
-		}
-		else if (pos.y < baseY - 5 * rowSpacing && pos.y >= baseY - 10 * rowSpacing) {
-			bool inSafeArea = false;
-			for (auto& safeCar : _entityManager.getEntities("car")) {
-				auto safeOverlap = Physics::getOverlap(_player, safeCar);
-				auto carVel = safeCar->getComponent<CTransform>().vel;
-
-				if (safeOverlap.x > 0 && safeOverlap.y > 0){
-					inSafeArea = true;
-					_player->getComponent<CTransform>().vel = carVel * 2.0f;
-
-					break;
-				}
-			}
-
-			if (!inSafeArea) {
-				if (_player->getComponent<CState>().state != "dead") {
-					_player->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("die");
-					_player->getComponent<CTransform>().vel = { 0.f, 0.f };
-					//_player->removeComponent<CBoundingBox>();
-					_player->addComponent<CState>().state = "dead";
-					SoundPlayer::getInstance().play("death");
-				}
-			}			
-		}
-	}
-}
-
-void Scene_Frogger::checkLilyCollision()
-{	
-	auto landYPos = 60.f;
-	auto landHeight = 60.f;
-	auto yPos = _player->getComponent<CTransform>().pos.y;
-
-	if (yPos >= landYPos && yPos <= landYPos + landHeight) {
-
-		bool inSafeArea = false;
-		for (auto& safeLilly : _entityManager.getEntities("lillyPad")) {
-			auto safeOverlap = Physics::getOverlap(_player, safeLilly);
-
-			if (safeOverlap.x > 0 && safeOverlap.y > 0) {
-				inSafeArea = true;
-				_player->getComponent<CTransform>().vel = { 0.f, 0.f };
-				_player->getComponent<CTransform>().pos = safeLilly->getComponent<CTransform>().pos;
-				_player->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("frogIcon");
-				safeLilly->removeComponent<CBoundingBox>();
-
-				spawnPlayer({ _worldBounds.width / 2.f, _worldBounds.height - 20.f });
-				break;
-			}
-		}
-
-		if (!inSafeArea) {
-			if (_player->getComponent<CState>().state != "dead") {
-				_player->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("die");
-				_player->getComponent<CTransform>().vel = { 0.f, 0.f };
-				//_player->removeComponent<CBoundingBox>();
-				_player->addComponent<CState>().state = "dead";
-				SoundPlayer::getInstance().play("death");
-			}
-		}
-	}
-}
-
-void Scene_Frogger::checkIfDead(sPtrEntt e)
-{
-	if (e->hasComponent<CState>() && e->getComponent<CState>().state == "dead")
-	{
-		auto anim = e->getComponent<CAnimation>().animation;
-		if (anim.hasEnded()) {
-			e->destroy();
-			spawnPlayer({ _worldBounds.width / 2.f, _worldBounds.height - 20.f });
-			e->getComponent<CState>().state = "alive";
-			e->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("up");
-		}
-	}
-}
-
-void Scene_Frogger::spawnNPCs(int num, SpawnPoint sp)
-{
-	sf::Vector2f pos{ 0.f, sp.y };
-	auto width = _worldBounds.width;  
-	auto spacer = width / (num + 1);
-
-	sf::Vector2f speed = { _config.enemySpeed, 0.f };
-
-	if (sp.type == "truck" || sp.type == "tree2" || sp.type == "3turtles") {
-		num = 2; 
-		speed.x = -_config.enemySpeed; // other direction
-	}
-	else if (sp.type == "raceCarL" || sp.type == "tractor") {
-		speed.x = (sp.type == "raceCarL") ? -_config.enemySpeed : _config.enemySpeed;
-	}
-	else if (sp.type == "car" || sp.type == "raceCarR") {
-		speed.x = (sp.type == "car") ? _config.enemySpeed : -_config.enemySpeed;
-	}
-	else if (sp.type == "2turtles" ) {
-		speed.x = _config.enemySpeed;
-	}
-	else if (sp.type == "tree1") {
-		speed.x = (sp.type == "tree1") ? _config.enemySpeed : -_config.enemySpeed;
-	}
-
-	for (int i = 1; i <= num; i++) {
-		pos.x = i * spacer;
-		auto car = _entityManager.addEntity("car");
-
-		auto& tfm = car->addComponent<CTransform>(pos, speed);
-
-		if (speed.x < 0) {
-			tfm.angle = 180.f;
-		}						
-		else
-		{
-			tfm.angle = 0;
-		}
-			
-		auto bb = car->
-			addComponent<CAnimation>(Assets::getInstance().getAnimation(sp.type)).animation.getBB();
-		car->addComponent<CBoundingBox>(bb);
-		car->addComponent<CAutoPilot>();
-
-
-	}
-}
-
-void Scene_Frogger::spawnLillyPads()
-{
-	std::vector<sf::Vector2f> lillyPadPositions = {
-	{35.f, 100.f}, {138.f, 100.f}, {240.f, 100.f}, {342.f, 100.f}, {444.f, 100.f}
-	};
-
-	for (const auto& pos : lillyPadPositions) {
-		auto lilly = _entityManager.addEntity("lillyPad");
-		lilly->addComponent<CTransform>(pos);
-		auto bb = lilly->
-			addComponent<CAnimation>(Assets::getInstance().getAnimation("lillyPad")).animation.getBB();
-
-		lilly->addComponent<CBoundingBox>(bb);
-	}
-}
-
-void Scene_Frogger::sAnimation(sf::Time dt)
+void Scene_FruitFall::sAnimation(sf::Time dt)
 {
 	for (auto e : _entityManager.getEntities()) {
 		// update all animations
@@ -464,7 +276,7 @@ void Scene_Frogger::sAnimation(sf::Time dt)
 	}
 }
 
-void Scene_Frogger::sMovement(sf::Time dt)
+void Scene_FruitFall::sMovement(sf::Time dt)
 {
 	playerMovement();
 
@@ -479,7 +291,7 @@ void Scene_Frogger::sMovement(sf::Time dt)
 }
 
 
-void Scene_Frogger::sUpdate(sf::Time dt)
+void Scene_FruitFall::sUpdate(sf::Time dt)
 {
 	if (_isPaused)
 		return;
@@ -490,47 +302,7 @@ void Scene_Frogger::sUpdate(sf::Time dt)
 	sAnimation(dt);
 	sMovement(dt);
 
-	// update cars
-	for (auto& car : _entityManager.getEntities("car")) {
-		auto& tfm = car->getComponent<CTransform>();
-
-		// check if car is out of bounds
-		if (tfm.pos.x < 0) {
-			// if car is out of left bounds, reset to right side
-			tfm.pos.x = _worldBounds.width;
-		}
-		else if (tfm.pos.x > _worldBounds.width) {
-			// if car is out of right bounds, reset to left side
-			tfm.pos.x = 0;
-		}
-
-		auto anim = car->getComponent<CAnimation>().animation;
-		int currentFrame = anim._currentFrame;
-
-		//if (currentFrame == 2) { 
-		//	if (car->hasComponent<CBoundingBox>()) {
-		//		car->getComponent<CBoundingBox>().has = false;
-		//	}
-		//}
-		//else {
-		//	if (car->hasComponent<CBoundingBox>()) {
-		//		car->getComponent<CBoundingBox>().has = true;
-		//	}
-		//}
-
-		// move car
-		tfm.pos += tfm.vel * dt.asSeconds();
-
-		// update car animation
-		//auto anim = car->getComponent<CAnimation>().animation;
-		//if (anim.hasEnded()) {
-		//	car->removeComponent<CBoundingBox>();
-		//}
-
-	}
-
 	sCollisions();
-	sSpawnNPCs();
 	adjustPlayerPosition(dt);
 
 
@@ -538,12 +310,12 @@ void Scene_Frogger::sUpdate(sf::Time dt)
 }
 
 
-void Scene_Frogger::update(sf::Time dt)
+void Scene_FruitFall::update(sf::Time dt)
 {
 	sUpdate(dt);
 }
 
-void Scene_Frogger::sRender()
+void Scene_FruitFall::sRender()
 {
 	// Draw Background first
 	for (auto e : _entityManager.getEntities("bkg")) {

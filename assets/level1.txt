@@ -1,5 +1,5 @@
 # Level 1
 
-World 480 600
+World 1500 1142
 Bkg Background 0 0
 

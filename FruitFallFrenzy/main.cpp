@@ -1,8 +1,8 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//  Assignment:     Project - Frogger
+//  Assignment:     Project - Fruit Fall Frenzy
 //  Instructor:     David Burchill
-//  Year / Term:    Fall 2024
+//  Year / Term:    Winter 2025
 //  File name:      Source.cpp
 //
 //  Student name:   Ariel Zhao Liu
