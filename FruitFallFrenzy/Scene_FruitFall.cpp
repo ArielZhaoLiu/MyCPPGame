@@ -23,7 +23,7 @@ void Scene_FruitFall::init(const std::string& levelPath)
 
 	_worldView = _game->window().getDefaultView();
 
-	sf::Vector2f spawnPlayerPos{ _worldBounds.width / 2.f, _worldBounds.height - 20.f};
+	sf::Vector2f spawnPlayerPos{ _worldBounds.width / 2.f, _worldBounds.height - 344.f};
 	spawnPlayer(spawnPlayerPos);
 
 	MusicPlayer::getInstance().play("gameTheme");
@@ -76,7 +76,7 @@ void Scene_FruitFall::spawnPlayer(sf::Vector2f pos)
 	_player = _entityManager.addEntity("player");
 	_player->addComponent<CTransform>(pos);
 
-	auto bb = _player->addComponent<CAnimation>(Assets::getInstance().getAnimation("up")).animation.getBB();
+	auto bb = _player->addComponent<CAnimation>(Assets::getInstance().getAnimation("basket")).animation.getBB();
 	_player->addComponent<CBoundingBox>(bb);
 	_player->addComponent<CInput>();
 
@@ -101,6 +101,7 @@ void Scene_FruitFall::registerActions()
 
 void Scene_FruitFall::sDoAction(const Command& command)
 {
+	
 	// On Key Press
 	if (command.type() == "START") {
 		if (command.name() == "PAUSE") { setPaused(!_isPaused); }
@@ -157,6 +158,7 @@ void Scene_FruitFall::sDoAction(const Command& command)
 			_player->getComponent<CInput>().down = false;
 		}
 	}
+	
 }
 
 
@@ -174,6 +176,7 @@ void Scene_FruitFall::onEnd()
 
 void Scene_FruitFall::playerMovement()
 {
+	/*
 	// no movement if player is dead
 	if (_player->hasComponent<CState>() && _player->getComponent<CState>().state == "dead")
 		return;
@@ -219,11 +222,13 @@ void Scene_FruitFall::playerMovement()
 	_player->getComponent<CTransform>().vel = normalize(pv);
 
 	annimatePlayer();
+	*/
 
 }
 
 void Scene_FruitFall::annimatePlayer()
 {
+	/*
 	if (_player->getComponent<CState>().state == "dead")
 		return;
 
@@ -236,10 +241,13 @@ void Scene_FruitFall::annimatePlayer()
 		_player->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("left");
 	else if (pInput.right)
 		_player->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("right");
+
+		*/
 }
 
 void Scene_FruitFall::adjustPlayerPosition(sf::Time dt)
 {
+	/*
 	// don't ajust position if dead
 	if (_player->getComponent<CState>().state == "dead")
 		return;
@@ -263,10 +271,12 @@ void Scene_FruitFall::adjustPlayerPosition(sf::Time dt)
 	player_pos.x = std::min(player_pos.x, right - halfSize.x);
 	player_pos.y = std::max(player_pos.y, top + halfSize.y);
 	player_pos.y = std::min(player_pos.y, bot - halfSize.y);
+	*/
 }
 
 void Scene_FruitFall::sAnimation(sf::Time dt)
 {
+
 	for (auto e : _entityManager.getEntities()) {
 		// update all animations
 		if (e->getComponent<CAnimation>().has) {
@@ -324,7 +334,7 @@ void Scene_FruitFall::sRender()
 			_game->window().draw(sprite);
 		}
 	}
-
+	
 	// Draw Entities except frog
 	for (auto e : _entityManager.getEntities()) {
 		if (e == _player) continue;
@@ -348,6 +358,7 @@ void Scene_FruitFall::sRender()
 			_game->window().draw(rect);
 		}
 	}
+	
 
 	// Draw Frog
 	if (_player->getComponent<CAnimation>().has) {
