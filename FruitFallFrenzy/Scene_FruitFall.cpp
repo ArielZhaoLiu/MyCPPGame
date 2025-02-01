@@ -23,7 +23,7 @@ void Scene_FruitFall::init(const std::string& levelPath)
 
 	_worldView = _game->window().getDefaultView();
 
-	sf::Vector2f spawnPlayerPos{ _worldBounds.width / 2.f, _worldBounds.height - 344.f};
+	sf::Vector2f spawnPlayerPos{ _worldBounds.width / 2.f, _worldBounds.height - 320.f};
 	spawnPlayer(spawnPlayerPos);
 
 	MusicPlayer::getInstance().play("gameTheme");
@@ -88,10 +88,10 @@ void Scene_FruitFall::registerActions()
 	registerAction(sf::Keyboard::Left, "LEFT");
 	registerAction(sf::Keyboard::D, "RIGHT");
 	registerAction(sf::Keyboard::Right, "RIGHT");
-	registerAction(sf::Keyboard::W, "UP");
-	registerAction(sf::Keyboard::Up, "UP");
-	registerAction(sf::Keyboard::S, "DOWN");
-	registerAction(sf::Keyboard::Down, "DOWN");
+	//registerAction(sf::Keyboard::W, "UP");
+	//registerAction(sf::Keyboard::Up, "UP");
+	//registerAction(sf::Keyboard::S, "DOWN");
+	//registerAction(sf::Keyboard::Down, "DOWN");
 
 	registerAction(sf::Keyboard::P, "PAUSE");
 	registerAction(sf::Keyboard::C, "TOGGLE_COLLISION");
@@ -130,13 +130,13 @@ void Scene_FruitFall::sDoAction(const Command& command)
 			command.name() == "RIGHT") {
 			_player->getComponent<CInput>().right = true;
 		}
-		else if (
+		/*else if (
 			command.name() == "UP") {
 			_player->getComponent<CInput>().up = true;
 		}
 		else if (command.name() == "DOWN") {
 			_player->getComponent<CInput>().down = true;
-		}
+		}*/
 		else if (command.name() == "TOGGLE") {
 			_player->getComponent<CInput>().down = true;
 		}
@@ -150,13 +150,13 @@ void Scene_FruitFall::sDoAction(const Command& command)
 			command.name() == "RIGHT") {
 			_player->getComponent<CInput>().right = false;
 		}
-		else if (
+		/*else if (
 			command.name() == "UP") {
 			_player->getComponent<CInput>().up = false;
 		}
 		else if (command.name() == "DOWN") {
 			_player->getComponent<CInput>().down = false;
-		}
+		}*/
 	}
 	
 }
@@ -180,6 +180,7 @@ void Scene_FruitFall::playerMovement()
 	// no movement if player is dead
 	if (_player->hasComponent<CState>() && _player->getComponent<CState>().state == "dead")
 		return;
+	*/
 
 	// player movement
 	auto& pInput = _player->getComponent<CInput>();
@@ -187,42 +188,28 @@ void Scene_FruitFall::playerMovement()
 
 	sf::Vector2f pv{ 0.f, 0.f };
 
-	if (pInput.up && !pInput.down)
-	{
-		transform.pos.y -= 40;
-		_player->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("up");
-		SoundPlayer::getInstance().play("hop");
-		pInput.up = false;
-	}
 		
-	else if (pInput.left && !pInput.right)
+	if (pInput.left && !pInput.right)
 	{
-		transform.pos.x -= 40;
-		_player->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("left");
+		transform.pos.x -=40;
+		_player->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("basket");
 		SoundPlayer::getInstance().play("hop");
 		pInput.left = false;
 	}
 		
 	else if (pInput.right && !pInput.left)
 	{
-		transform.pos.x += 40; 
-		_player->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("right");
+		transform.pos.x +=40; 
+		_player->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("basket");
 		SoundPlayer::getInstance().play("hop");
 		pInput.right = false;
-	}
-		
-	else if (pInput.down && !pInput.up) {
-		transform.pos.y += 40;
-		_player->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("down");
-		SoundPlayer::getInstance().play("hop");
-		pInput.down = false;
 	}
 	
 	// normalize
 	_player->getComponent<CTransform>().vel = normalize(pv);
 
 	annimatePlayer();
-	*/
+	
 
 }
 
@@ -231,18 +218,19 @@ void Scene_FruitFall::annimatePlayer()
 	/*
 	if (_player->getComponent<CState>().state == "dead")
 		return;
+		*/
 
 	auto& pInput = _player->getComponent<CInput>();
 	if (pInput.up)
-		_player->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("up");
+		_player->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("basket");
 	else if (pInput.down)
-		_player->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("down");
-	else if (pInput.left)
-		_player->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("left");
-	else if (pInput.right)
-		_player->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("right");
+		_player->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("basket");
+	//else if (pInput.left)
+	//	_player->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("left");
+	//else if (pInput.right)
+	//	_player->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("right");
 
-		*/
+		
 }
 
 void Scene_FruitFall::adjustPlayerPosition(sf::Time dt)
@@ -251,6 +239,7 @@ void Scene_FruitFall::adjustPlayerPosition(sf::Time dt)
 	// don't ajust position if dead
 	if (_player->getComponent<CState>().state == "dead")
 		return;
+		*/
 
 	auto& playerTfm = _player->getComponent<CTransform>();
 	playerTfm.pos += playerTfm.vel * dt.asSeconds();
@@ -268,10 +257,10 @@ void Scene_FruitFall::adjustPlayerPosition(sf::Time dt)
 
 	// keep player in bounds
 	player_pos.x = std::max(player_pos.x, left + halfSize.x);
-	player_pos.x = std::min(player_pos.x, right - halfSize.x);
+	player_pos.x = std::min(player_pos.x, right - halfSize.x - 180);
 	player_pos.y = std::max(player_pos.y, top + halfSize.y);
 	player_pos.y = std::min(player_pos.y, bot - halfSize.y);
-	*/
+	
 }
 
 void Scene_FruitFall::sAnimation(sf::Time dt)
