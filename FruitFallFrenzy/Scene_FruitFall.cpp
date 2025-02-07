@@ -5,10 +5,13 @@
 
 #include <fstream>
 #include <iostream>
-//
-// Created by David Burchill on 2023-09-27.
-//
+#include <random>
 
+
+namespace {
+	std::random_device rd;
+	std::mt19937 rng(rd());
+}
 
 Scene_FruitFall::Scene_FruitFall(GameEngine* gameEngine, const std::string& levelPath)
     : Scene(gameEngine)
@@ -24,7 +27,11 @@ void Scene_FruitFall::init(const std::string& levelPath)
 	_worldView = _game->window().getDefaultView();
 
 	sf::Vector2f spawnPlayerPos{ _worldBounds.width / 2.f, _worldBounds.height - 320.f};
+	sf::Vector2f spawnFruitPos{ _worldBounds.width / 2.f, 0.f };
+
 	spawnPlayer(spawnPlayerPos);
+	spawnFruit();
+	spawnIcons();
 
 	MusicPlayer::getInstance().play("gameTheme");
 	MusicPlayer::getInstance().setVolume(50);
@@ -77,8 +84,82 @@ void Scene_FruitFall::spawnPlayer(sf::Vector2f pos)
 	_player->addComponent<CTransform>(pos);
 
 	auto bb = _player->addComponent<CAnimation>(Assets::getInstance().getAnimation("basket")).animation.getBB();
+
+	float scale = 0.5f;
+	bb.x = scale * bb.x;
+	bb.y = scale * bb.y + 30.f;
+
 	_player->addComponent<CBoundingBox>(bb);
 	_player->addComponent<CInput>();
+
+}
+
+//void Scene_FruitFall::spawnFruit(sf::Vector2f pos)
+//{
+//
+//	auto vel = _config.fruitSpeed * uVecBearing(100);
+//
+//	auto e = _entityManager.addEntity("fruit");
+//	e->addComponent<CTransform>(pos, vel);
+//	e->addComponent<CAnimation>(Assets::getInstance().getAnimation("strawbury"));
+//	auto bb = e->getComponent<CAnimation>().animation.getBB();
+//
+//	float scale = 0.8f;
+//	bb.x *= scale;
+//	bb.y *= scale;
+//
+//	e->addComponent<CBoundingBox>(bb);
+//	//e->addComponent<CTag>("fruit");
+//}
+
+void Scene_FruitFall::spawnFruit()
+{
+	auto fruitTypes = _config.fruitTypes;
+
+	// spawn random fruit type
+	std::uniform_int_distribution<int> dist(0, fruitTypes.size() - 1);
+	auto fruitType = fruitTypes[dist(rng)];
+
+	// spawn random position
+	auto pos = sf::Vector2f{ 0.f, 0.f };
+	std::uniform_int_distribution<int> distX(50, static_cast<int>(_worldBounds.width - 100));
+	pos.x = static_cast<float>(distX(rng));
+
+
+	auto vel = _config.fruitSpeed * uVecBearing(100);
+	auto e = _entityManager.addEntity("fruit");
+	e->addComponent<CTransform>(pos, vel);
+	e->addComponent<CAnimation>(Assets::getInstance().getAnimation(fruitType));
+	auto bb = e->getComponent<CAnimation>().animation.getBB();
+	float scale = 0.8f;
+	bb.x *= scale;
+	bb.y *= scale;
+	e->addComponent<CBoundingBox>(bb);
+	//e->addComponent<CTag>("fruit");
+}
+
+void Scene_FruitFall::spawnIcons()
+{
+	auto timerEntity = _entityManager.addEntity("timer");
+	timerEntity->addComponent<CTransform>(sf::Vector2f{ 90.f, 70.f });
+	timerEntity->addComponent<CAnimation>(Assets::getInstance().getAnimation("timer"));
+
+
+	auto hintEntity = _entityManager.addEntity("hint");
+	hintEntity->addComponent<CTransform>(sf::Vector2f{ 90.f, 540.f });
+	hintEntity->addComponent<CAnimation>(Assets::getInstance().getAnimation("hint"));
+
+	auto restartEntity = _entityManager.addEntity("restart");
+	restartEntity->addComponent<CTransform>(sf::Vector2f{ 90.f, 645.f });
+	restartEntity->addComponent<CAnimation>(Assets::getInstance().getAnimation("restart"));
+
+	auto pauseEntity = _entityManager.addEntity("pause");
+	pauseEntity->addComponent<CTransform>(sf::Vector2f{ 90.f, 742.f });
+	pauseEntity->addComponent<CAnimation>(Assets::getInstance().getAnimation("pause"));
+
+	auto escEntity = _entityManager.addEntity("esc");
+	escEntity->addComponent<CTransform>(sf::Vector2f{ 90.f, 852.f });
+	escEntity->addComponent<CAnimation>(Assets::getInstance().getAnimation("esc"));
 
 }
 
@@ -256,8 +337,8 @@ void Scene_FruitFall::adjustPlayerPosition(sf::Time dt)
 	auto halfSize = _player->getComponent<CBoundingBox>().halfSize;
 
 	// keep player in bounds
-	player_pos.x = std::max(player_pos.x, left + halfSize.x);
-	player_pos.x = std::min(player_pos.x, right - halfSize.x - 180);
+	player_pos.x = std::max(player_pos.x, left + halfSize.x + 50);
+	player_pos.x = std::min(player_pos.x, right - halfSize.x - 240);
 	player_pos.y = std::max(player_pos.y, top + halfSize.y);
 	player_pos.y = std::min(player_pos.y, bot - halfSize.y);
 	
@@ -296,6 +377,13 @@ void Scene_FruitFall::sUpdate(sf::Time dt)
 		return;
 
 	SoundPlayer::getInstance().removeStoppedSounds();
+
+	_config.spawnTimer += dt.asSeconds();
+	if (_config.spawnTimer >= _config.spawnInterval) {
+		spawnFruit();
+		_config.spawnTimer = 0.f;
+	}
+
 	_entityManager.update();
 
 	sAnimation(dt);
@@ -312,6 +400,8 @@ void Scene_FruitFall::sUpdate(sf::Time dt)
 void Scene_FruitFall::update(sf::Time dt)
 {
 	sUpdate(dt);
+
+
 }
 
 void Scene_FruitFall::sRender()
@@ -323,8 +413,16 @@ void Scene_FruitFall::sRender()
 			_game->window().draw(sprite);
 		}
 	}
+
+	// Draw basket
+	if (_player->getComponent<CAnimation>().has) {
+		auto& anim = _player->getComponent<CAnimation>().animation;
+		auto& tfm = _player->getComponent<CTransform>();
+		anim.getSprite().setPosition(tfm.pos);
+		_game->window().draw(anim.getSprite());
+	}
 	
-	// Draw Entities except frog
+	// Draw Entities except basket
 	for (auto e : _entityManager.getEntities()) {
 		if (e == _player) continue;
 
@@ -335,25 +433,34 @@ void Scene_FruitFall::sRender()
 			_game->window().draw(anim.getSprite());
 		}
 
+		//if (_drawAABB && e->hasComponent<CBoundingBox>()) {
+		//	auto& bb = e->getComponent<CBoundingBox>();
+		//	sf::RectangleShape rect;
+		//	rect.setSize(sf::Vector2f{ bb.size.x, bb.size.y });
+		//	centerOrigin(rect);
+		//	rect.setPosition(e->getComponent<CTransform>().pos);
+		//	rect.setFillColor(sf::Color{0, 0, 0, 0});
+		//	rect.setOutlineColor(sf::Color{ 0, 255, 0});
+		//	rect.setOutlineThickness(2.f);
+		//	_game->window().draw(rect);
+		//}
+	}
+	
+
+	
+
+	// Draw bounding box
+	for (auto e : _entityManager.getEntities()) {
 		if (_drawAABB && e->hasComponent<CBoundingBox>()) {
 			auto& bb = e->getComponent<CBoundingBox>();
 			sf::RectangleShape rect;
 			rect.setSize(sf::Vector2f{ bb.size.x, bb.size.y });
 			centerOrigin(rect);
 			rect.setPosition(e->getComponent<CTransform>().pos);
-			rect.setFillColor(sf::Color{0, 0, 0, 0});
-			rect.setOutlineColor(sf::Color{ 0, 255, 0});
+			rect.setFillColor(sf::Color{ 0, 0, 0, 0 });
+			rect.setOutlineColor(sf::Color{ 0, 255, 0 });
 			rect.setOutlineThickness(2.f);
 			_game->window().draw(rect);
 		}
-	}
-	
-
-	// Draw Frog
-	if (_player->getComponent<CAnimation>().has) {
-		auto& anim = _player->getComponent<CAnimation>().animation;
-		auto& tfm = _player->getComponent<CTransform>();
-		anim.getSprite().setPosition(tfm.pos);
-		_game->window().draw(anim.getSprite());
 	}
 }

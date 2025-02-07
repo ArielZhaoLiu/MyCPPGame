@@ -28,6 +28,16 @@ JSON                    ../assets/Textures/FruitTree.json
 
 #
 #  Animation    Name            Texture     Speed   Repeats
-Animation       basket          Entities    20        no
+Animation       basket          Entities    20       no
 Animation       sadface         Entities    1        no
 Animation       strawbury       Entities    1        no
+Animation       apple      	Entities    1        no
+Animation       banana      	Entities    1        no
+Animation       cherry      	Entities    1        no
+Animation       watermelon     	Entities    1        no
+Animation       mango      	Entities    1        no
+Animation       timer      	Entities    1        no
+Animation       hint      	Entities    1        no
+Animation       restart      	Entities    1        no
+Animation       pause      	Entities    1        no
+Animation       esc      	Entities    1        no

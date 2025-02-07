@@ -1,4 +1,4 @@
-
+﻿
 #pragma once
 
 #include <SFML/System/Time.hpp>
@@ -10,12 +10,18 @@
 
 
 struct LevelConfig {
-	float       playerSpeed{ 200.f };
-	float       enemySpeed{ 10.f };
-	float       missileSpeed{ 150.f };
-	float		spawnInterval{ 2.f };
-	float		friendsSpeed{ 10.f };
+	float       fruitSpeed{ 200.f };
+	float		spawnTimer = 0.f;
+	float		spawnInterval{ 1.f }; // time between fruit spawns
+	int			gamePhase = 1;        // （1 = only fruits, 2 = adding bombs, 3 = adding power ups, 4 = more speed）
+	float		gameTime = 0.f;     // game total time
+
+	std::vector<std::string> fruitTypes = { "mango", "apple", "banana", "watermelon", "cherry" };
+	std::vector<std::string> bombTypes = { "bomb" };
+	std::vector<std::string> powerupTypes = { "slowTime", "magnet", "fruitFrenzy" };
+
 };
+
 
 class Scene_FruitFall : public Scene {
 
@@ -36,6 +42,9 @@ class Scene_FruitFall : public Scene {
 	// helper functions
 	void	                registerActions();
 	void                    spawnPlayer(sf::Vector2f pos);
+	//void                    spawnFruit(sf::Vector2f pos);
+	void                    spawnFruit();
+	void                    spawnIcons();
 	void                    playerMovement();
 	void                    annimatePlayer();
 	void                    adjustPlayerPosition(sf::Time dt);
