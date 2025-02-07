@@ -94,23 +94,6 @@ void Scene_FruitFall::spawnPlayer(sf::Vector2f pos)
 
 }
 
-//void Scene_FruitFall::spawnFruit(sf::Vector2f pos)
-//{
-//
-//	auto vel = _config.fruitSpeed * uVecBearing(100);
-//
-//	auto e = _entityManager.addEntity("fruit");
-//	e->addComponent<CTransform>(pos, vel);
-//	e->addComponent<CAnimation>(Assets::getInstance().getAnimation("strawbury"));
-//	auto bb = e->getComponent<CAnimation>().animation.getBB();
-//
-//	float scale = 0.8f;
-//	bb.x *= scale;
-//	bb.y *= scale;
-//
-//	e->addComponent<CBoundingBox>(bb);
-//	//e->addComponent<CTag>("fruit");
-//}
 
 void Scene_FruitFall::spawnFruit()
 {
@@ -246,7 +229,7 @@ void Scene_FruitFall::sDoAction(const Command& command)
 
 void Scene_FruitFall::sCollisions()
 {
-
+	checkFruitsCollision();
 }
 
 
@@ -337,11 +320,39 @@ void Scene_FruitFall::adjustPlayerPosition(sf::Time dt)
 	auto halfSize = _player->getComponent<CBoundingBox>().halfSize;
 
 	// keep player in bounds
-	player_pos.x = std::max(player_pos.x, left + halfSize.x + 50);
+	player_pos.x = std::max(player_pos.x, left + halfSize.x + 220);
 	player_pos.x = std::min(player_pos.x, right - halfSize.x - 240);
 	player_pos.y = std::max(player_pos.y, top + halfSize.y);
 	player_pos.y = std::min(player_pos.y, bot - halfSize.y);
 	
+}
+
+void Scene_FruitFall::adjustFruitPosition(sf::Time dt)
+{
+	for (auto e : _entityManager.getEntities("fruit")) {
+		auto& tfm = e->getComponent<CTransform>();
+
+		// if fruit is out of bounds, remove it
+		if (tfm.pos.y > _worldBounds.height) {
+			e->destroy();
+		}
+		// if fruit is out of bounds, remove it
+		if (tfm.pos.x < 0 || tfm.pos.x > _worldBounds.width) {
+			e->destroy();
+		}
+	}
+}
+
+void Scene_FruitFall::checkFruitsCollision()
+{
+
+	for (auto e : _entityManager.getEntities("fruit")) {
+		auto overlap = Physics::getOverlap(_player, e);
+		if (overlap.x > 0 && overlap.y > 0) {
+			e->destroy();
+		}
+	}
+
 }
 
 void Scene_FruitFall::sAnimation(sf::Time dt)
@@ -391,8 +402,7 @@ void Scene_FruitFall::sUpdate(sf::Time dt)
 
 	sCollisions();
 	adjustPlayerPosition(dt);
-
-
+	adjustFruitPosition(dt);
 
 }
 
@@ -400,8 +410,6 @@ void Scene_FruitFall::sUpdate(sf::Time dt)
 void Scene_FruitFall::update(sf::Time dt)
 {
 	sUpdate(dt);
-
-
 }
 
 void Scene_FruitFall::sRender()
@@ -446,7 +454,6 @@ void Scene_FruitFall::sRender()
 		//}
 	}
 	
-
 	
 
 	// Draw bounding box

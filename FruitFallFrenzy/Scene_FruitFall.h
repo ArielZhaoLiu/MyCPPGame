@@ -48,6 +48,8 @@ class Scene_FruitFall : public Scene {
 	void                    playerMovement();
 	void                    annimatePlayer();
 	void                    adjustPlayerPosition(sf::Time dt);
+	void                    adjustFruitPosition(sf::Time dt);
+	void                    checkFruitsCollision();
 	void                    init(const std::string& path);
 	void                    loadLevel(const std::string& path);
 
