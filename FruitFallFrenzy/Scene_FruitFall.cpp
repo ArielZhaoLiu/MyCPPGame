@@ -160,7 +160,7 @@ void Scene_FruitFall::registerActions()
 	registerAction(sf::Keyboard::P, "PAUSE");
 	registerAction(sf::Keyboard::C, "TOGGLE_COLLISION");
 	registerAction(sf::Keyboard::Escape, "BACK");
-	registerAction(sf::Keyboard::Q, "QUIT");
+	registerAction(sf::Keyboard::E, "EXIT");
 }
 
 void Scene_FruitFall::sDoAction(const Command& command)
@@ -170,7 +170,7 @@ void Scene_FruitFall::sDoAction(const Command& command)
 	if (command.type() == "START") {
 		if (command.name() == "PAUSE") { setPaused(!_isPaused); }
 		else if (
-			command.name() == "QUIT") {
+			command.name() == "EXIT") {
 			_game->quitLevel();
 		}
 		else if (
@@ -349,6 +349,33 @@ void Scene_FruitFall::checkFruitsCollision()
 	for (auto e : _entityManager.getEntities("fruit")) {
 		auto overlap = Physics::getOverlap(_player, e);
 		if (overlap.x > 0 && overlap.y > 0) {
+
+			if (e->getComponent<CAnimation>().animation.getName() == "apple")
+			{
+				_config.currentScore += 10;
+			}
+			else if (e->getComponent<CAnimation>().animation.getName() == "banana")
+			{
+				_config.currentScore += 10;
+			}
+			else if (e->getComponent<CAnimation>().animation.getName() == "cherry")
+			{
+				_config.currentScore += 30;
+			}
+			else if (e->getComponent<CAnimation>().animation.getName() == "mango")
+			{
+				_config.currentScore += 20;
+			}
+			else if (e->getComponent<CAnimation>().animation.getName() == "strawbury")
+			{
+				_config.currentScore += 30;
+			}
+
+			else if (e->getComponent<CAnimation>().animation.getName() == "watermelon")
+			{
+				_config.currentScore += 100;
+			}
+			
 			e->destroy();
 		}
 	}
@@ -393,6 +420,14 @@ void Scene_FruitFall::sUpdate(sf::Time dt)
 	if (_config.spawnTimer >= _config.spawnInterval) {
 		spawnFruit();
 		_config.spawnTimer = 0.f;
+	}
+
+	_config.gameTime += dt.asSeconds(); // game total time
+	_config.countdownTime -= dt.asSeconds(); // countdown time decrease
+
+	if (_config.countdownTime <= 0.f) {
+		//endGame(); // 倒计时结束，调用游戏结束函数
+		return;
 	}
 
 	_entityManager.update();
@@ -470,4 +505,20 @@ void Scene_FruitFall::sRender()
 			_game->window().draw(rect);
 		}
 	}
+
+	// draw timer
+	static sf::Text text("01:00", Assets::getInstance().getFont("Arial"), 50);
+	text.setString(std::to_string((int)_config.countdownTime));
+	centerOrigin(text);
+	text.setFillColor(sf::Color::Black);
+	text.setPosition(90.f, 90.f);
+	_game->window().draw(text);
+
+
+	sf::Text currentScore("Current Score: " + std::to_string(_config.currentScore), Assets::getInstance().getFont("Arial"), 30);
+	centerOrigin(text);
+	currentScore.setPosition(20.f, 180.f);
+	currentScore.setFillColor(sf::Color::Black);
+
+	_game->window().draw(currentScore);
 }

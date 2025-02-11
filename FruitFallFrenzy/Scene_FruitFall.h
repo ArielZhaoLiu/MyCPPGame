@@ -15,6 +15,9 @@ struct LevelConfig {
 	float		spawnInterval{ 1.f }; // time between fruit spawns
 	int			gamePhase = 1;        // （1 = only fruits, 2 = adding bombs, 3 = adding power ups, 4 = more speed）
 	float		gameTime = 0.f;     // game total time
+	float		countdownTime{ 60.f }; // 60s countdown
+	int			currentScore{ 0 };
+	int			highestScore{ 0 };
 
 	std::vector<std::string> fruitTypes = { "mango", "apple", "banana", "watermelon", "cherry" };
 	std::vector<std::string> bombTypes = { "bomb" };
