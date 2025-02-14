@@ -276,6 +276,7 @@ void Scene_FruitFall::sCollisions()
 {
 	checkFruitsCollision();
 	checkBombsCollision();
+	checkPowerUpsCollision();
 }
 
 
@@ -433,6 +434,34 @@ void Scene_FruitFall::checkBombsCollision()
 		auto overlap = Physics::getOverlap(_player, e);
 		if (overlap.x > 0 && overlap.y > 0) {
 			_config.currentScore -= 200;
+
+			e->destroy();
+		}
+	}
+}
+
+void Scene_FruitFall::checkPowerUpsCollision()
+{
+	for (auto e : _entityManager.getEntities("powerUp")) {
+		auto overlap = Physics::getOverlap(_player, e);
+		if (overlap.x > 0 && overlap.y > 0) {
+
+			if (e->getComponent<CAnimation>().animation.getName() == "time")
+			{
+				_config.countdownTime += 5;
+			}
+			else if (e->getComponent<CAnimation>().animation.getName() == "magnet")
+			{
+				_config.currentScore += 10;
+			}
+			else if (e->getComponent<CAnimation>().animation.getName() == "slowdown")
+			{
+				_config.fruitSpeed -= 100;
+			}
+			else if (e->getComponent<CAnimation>().animation.getName() == "pineapple")
+			{
+				_config.currentScore += 10;
+			}
 
 			e->destroy();
 		}

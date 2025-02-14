@@ -60,6 +60,7 @@ class Scene_FruitFall : public Scene {
 	void                    adjustFruitPosition(sf::Time dt);
 	void                    checkFruitsCollision();
 	void                    checkBombsCollision();
+	void                    checkPowerUpsCollision();
 	void                    init(const std::string& path);
 	void                    loadLevel(const std::string& path);
 
