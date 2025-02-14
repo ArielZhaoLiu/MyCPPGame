@@ -275,6 +275,7 @@ void Scene_FruitFall::sDoAction(const Command& command)
 void Scene_FruitFall::sCollisions()
 {
 	checkFruitsCollision();
+	checkBombsCollision();
 }
 
 
@@ -426,6 +427,18 @@ void Scene_FruitFall::checkFruitsCollision()
 
 }
 
+void Scene_FruitFall::checkBombsCollision()
+{
+	for (auto e : _entityManager.getEntities("bomb")) {
+		auto overlap = Physics::getOverlap(_player, e);
+		if (overlap.x > 0 && overlap.y > 0) {
+			_config.currentScore -= 200;
+
+			e->destroy();
+		}
+	}
+}
+
 void Scene_FruitFall::sAnimation(sf::Time dt)
 {
 
@@ -470,12 +483,12 @@ void Scene_FruitFall::sUpdate(sf::Time dt)
 	_config.countdownTime -= dt.asSeconds(); // countdown time decrease
 
 
-	if (_config.gameTime >= 20 && _config.spawnPowerUpTimer >= _config.spawnPowerUpInterval) {
+	if (_config.gameTime >= 13 && _config.spawnPowerUpTimer >= _config.spawnPowerUpInterval) {
 		spawnPowerUps();
 		_config.spawnPowerUpTimer = 0.f;
 	}
 
-	if (_config.gameTime >= 10 && _config.spawnBombTimer >= _config.spawnBombsInterval) {
+	if (_config.gameTime >= 5 && _config.spawnBombTimer >= _config.spawnBombsInterval) {
 		spawnBombs();
 		_config.spawnBombTimer = 0.f;
 	}
@@ -484,11 +497,6 @@ void Scene_FruitFall::sUpdate(sf::Time dt)
 		spawnFruit();
 		_config.spawnFruitTimer = 0.f;
 	}
-
-
-
-
-
 
 
 
