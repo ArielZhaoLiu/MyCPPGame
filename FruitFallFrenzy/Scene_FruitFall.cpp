@@ -146,6 +146,26 @@ void Scene_FruitFall::spawnIcons()
 
 }
 
+void Scene_FruitFall::spawnBombs()
+{
+	auto bomb = _config.bombTypes[0];
+
+	// spawn random position
+	auto pos = sf::Vector2f{ 0.f, 0.f };
+	std::uniform_int_distribution<int> distX(50, static_cast<int>(_worldBounds.width - 100));
+	pos.x = static_cast<float>(distX(rng));
+
+	auto vel = _config.fruitSpeed * uVecBearing(100);
+	auto e = _entityManager.addEntity("fruit");
+	e->addComponent<CTransform>(pos, vel);
+	e->addComponent<CAnimation>(Assets::getInstance().getAnimation(bomb));
+	auto bb = e->getComponent<CAnimation>().animation.getBB();
+	float scale = 0.8f;
+	bb.x *= scale;
+	bb.y *= scale;
+	e->addComponent<CBoundingBox>(bb);
+}
+
 void Scene_FruitFall::registerActions()
 {
 	registerAction(sf::Keyboard::A, "LEFT");
@@ -370,7 +390,6 @@ void Scene_FruitFall::checkFruitsCollision()
 			{
 				_config.currentScore += 30;
 			}
-
 			else if (e->getComponent<CAnimation>().animation.getName() == "watermelon")
 			{
 				_config.currentScore += 100;
@@ -416,14 +435,30 @@ void Scene_FruitFall::sUpdate(sf::Time dt)
 
 	SoundPlayer::getInstance().removeStoppedSounds();
 
-	_config.spawnTimer += dt.asSeconds();
-	if (_config.spawnTimer >= _config.spawnInterval) {
-		spawnFruit();
-		_config.spawnTimer = 0.f;
-	}
+	_config.spawnFruitTimer += dt.asSeconds();
+	_config.spawnBombTimer += dt.asSeconds();
 
 	_config.gameTime += dt.asSeconds(); // game total time
+
 	_config.countdownTime -= dt.asSeconds(); // countdown time decrease
+
+	if (_config.gameTime >= 10 && _config.spawnBombTimer >= _config.spawnBombsInterval) {
+		spawnBombs();
+		_config.spawnBombTimer = 0.f;
+	}
+
+	if (_config.spawnFruitTimer >= _config.spawnFruitInterval) {
+		spawnFruit();
+		_config.spawnFruitTimer = 0.f;
+	}
+
+
+
+
+
+
+
+
 
 	if (_config.countdownTime <= 0.f) {
 		//endGame(); // 倒计时结束，调用游戏结束函数

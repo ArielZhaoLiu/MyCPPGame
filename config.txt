@@ -41,3 +41,7 @@ Animation       hint      	Entities    1        no
 Animation       restart      	Entities    1        no
 Animation       pause      	Entities    1        no
 Animation       esc      	Entities    1        no
+Animation       bomb      	Entities    5        yes
+Animation       magnet      	Entities    5        yes
+Animation       onfire      	Entities    5        yes
+Animation       pineapple      	Entities    5        yes
