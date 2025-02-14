@@ -434,7 +434,7 @@ void Scene_FruitFall::checkBombsCollision()
 		auto overlap = Physics::getOverlap(_player, e);
 		if (overlap.x > 0 && overlap.y > 0) {
 			_config.currentScore -= 200;
-
+			_config.countdownTime -= 30;
 			e->destroy();
 		}
 	}
