@@ -25,7 +25,7 @@ struct LevelConfig {
 
 	std::vector<std::string> fruitTypes = { "mango", "apple", "banana", "watermelon", "cherry", "strawbury"};
 	std::vector<std::string> bombTypes = { "bomb" };
-	std::vector<std::string> powerupTypes = { "slowdown", "magnet", "onfire", "pineapple", "time"};
+	std::vector<std::string> powerupTypes = { "slowdown", "magnet", "pineapple", "time"};
 
 };
 
@@ -53,6 +53,7 @@ class Scene_FruitFall : public Scene {
 	void                    spawnFruit();
 	void                    spawnIcons();
 	void                    spawnBombs();
+	void                    spawnPowerUps();
 	void                    playerMovement();
 	void                    annimatePlayer();
 	void                    adjustPlayerPosition(sf::Time dt);

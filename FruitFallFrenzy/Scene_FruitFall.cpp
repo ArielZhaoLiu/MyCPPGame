@@ -156,9 +156,34 @@ void Scene_FruitFall::spawnBombs()
 	pos.x = static_cast<float>(distX(rng));
 
 	auto vel = _config.fruitSpeed * uVecBearing(100);
-	auto e = _entityManager.addEntity("fruit");
+	auto e = _entityManager.addEntity("bomb");
 	e->addComponent<CTransform>(pos, vel);
 	e->addComponent<CAnimation>(Assets::getInstance().getAnimation(bomb));
+	auto bb = e->getComponent<CAnimation>().animation.getBB();
+	float scale = 0.8f;
+	bb.x *= scale;
+	bb.y *= scale;
+	e->addComponent<CBoundingBox>(bb);
+}
+
+void Scene_FruitFall::spawnPowerUps()
+{
+	auto powerUpTypes = _config.powerupTypes;
+
+	// spawn random power up
+	std::uniform_int_distribution<int> dist(0, powerUpTypes.size() - 1);
+	auto powerUpType = powerUpTypes[dist(rng)];
+
+	// spawn random position
+	auto pos = sf::Vector2f{ 0.f, 0.f };
+	std::uniform_int_distribution<int> distX(50, static_cast<int>(_worldBounds.width - 100));
+	pos.x = static_cast<float>(distX(rng));
+
+
+	auto vel = _config.fruitSpeed * uVecBearing(100);
+	auto e = _entityManager.addEntity("powerUp");
+	e->addComponent<CTransform>(pos, vel);
+	e->addComponent<CAnimation>(Assets::getInstance().getAnimation(powerUpType));
 	auto bb = e->getComponent<CAnimation>().animation.getBB();
 	float scale = 0.8f;
 	bb.x *= scale;
@@ -437,10 +462,18 @@ void Scene_FruitFall::sUpdate(sf::Time dt)
 
 	_config.spawnFruitTimer += dt.asSeconds();
 	_config.spawnBombTimer += dt.asSeconds();
+	_config.spawnPowerUpTimer += dt.asSeconds();
+
 
 	_config.gameTime += dt.asSeconds(); // game total time
 
 	_config.countdownTime -= dt.asSeconds(); // countdown time decrease
+
+
+	if (_config.gameTime >= 20 && _config.spawnPowerUpTimer >= _config.spawnPowerUpInterval) {
+		spawnPowerUps();
+		_config.spawnPowerUpTimer = 0.f;
+	}
 
 	if (_config.gameTime >= 10 && _config.spawnBombTimer >= _config.spawnBombsInterval) {
 		spawnBombs();
