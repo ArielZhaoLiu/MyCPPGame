@@ -23,6 +23,7 @@ struct Component
 
 struct CAnimation : public Component {
     Animation   animation;
+    bool hasExploded = false;
 
     CAnimation() = default;
     CAnimation(const Animation& a) : animation(a) {}

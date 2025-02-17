@@ -11,8 +11,11 @@ Music missionTheme      ../assets/Music/dp_frogger_tweener.flac
 
 # Textures
 Texture Background      ../assets/Textures/bg.jpg
+Texture WinBackground   ../assets/Textures/win_bg.jpg
 Texture Title           ../assets/Textures/FroggerTitle.png
-Texture Entities        ../assets/Textures/FruitTree.png
+Texture FruitTree       ../assets/Textures/FruitTree.png
+Texture Entities    	../assets/Textures/Entities.png
+
 
 # Sprites
 Sprite Background       Background   0 0  509 1743
@@ -24,29 +27,33 @@ Sound death             ../assets/Sound/froggerDie.wav
 Sound hop               ../assets/Sound/froggerMove.wav
 
 JSON                    ../assets/Textures/FruitTree.json
+JSON               	../assets/Textures/Entities.json
 
 
 #
 #  Animation    Name            Texture     Speed   Repeats
-Animation       basket          Entities    20       no
-Animation       sadface         Entities    1        no
+Animation       basket          FruitTree    20       no
+Animation       sadface         FruitTree    1        no
 
-Animation       strawbury       Entities    1        no
-Animation       apple      	Entities    1        no
-Animation       banana      	Entities    1        no
-Animation       cherry      	Entities    1        no
-Animation       watermelon     	Entities    1        no
-Animation       mango      	Entities    1        no
+Animation       strawbury       FruitTree    1        no
+Animation       apple      	FruitTree    1        no
+Animation       banana      	FruitTree    1        no
+Animation       cherry      	FruitTree    1        no
+Animation       watermelon     	FruitTree    1        no
+Animation       mango      	FruitTree    1        no
 
-Animation       timer      	Entities    1        no
-Animation       hint      	Entities    1        no
-Animation       restart      	Entities    1        no
-Animation       pause      	Entities    1        no
-Animation       esc      	Entities    1        no
+Animation       timer      	FruitTree    1        no
+Animation       hint      	FruitTree    1        no
+Animation       restart      	FruitTree    1        no
+Animation       pause      	FruitTree    1        no
+Animation       esc      	FruitTree    1        no
 
-Animation       bomb      	Entities    5        yes
-Animation       magnet      	Entities    5        yes
-Animation       onfire      	Entities    5        yes
-Animation       pineapple      	Entities    5        yes
-Animation       slowdown      	Entities    5        yes
-Animation       time      	Entities    5        yes
+Animation       bomb      	FruitTree    5        yes
+Animation       explode      	FruitTree    5        yes
+Animation       explosion       Entities    20       no
+
+Animation       magnet      	FruitTree    5        yes
+Animation       onfire      	FruitTree    5        yes
+Animation       pineapple      	FruitTree    5        yes
+Animation       slowdown      	FruitTree    5        yes
+Animation       time      	FruitTree    5        yes

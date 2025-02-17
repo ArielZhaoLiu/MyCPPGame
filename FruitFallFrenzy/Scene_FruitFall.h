@@ -23,6 +23,8 @@ struct LevelConfig {
 	int			currentScore{ 0 };
 	int			highestScore{ 0 };
 
+
+
 	std::vector<std::string> fruitTypes = { "mango", "apple", "banana", "watermelon", "cherry", "strawbury"};
 	std::vector<std::string> bombTypes = { "bomb" };
 	std::vector<std::string> powerupTypes = { "slowdown", "magnet", "pineapple", "time"};
@@ -38,6 +40,11 @@ class Scene_FruitFall : public Scene {
 	bool                                _drawTextures{ true };
 	bool                                _drawAABB{ false };
 	LevelConfig                         _config;
+
+	bool 								_showGameOverScreen{ false };
+	float								_gameOverTimer{0.f};
+	float								_overlayAlpha{ 0.f };
+	float								_victoryAlpha{ 0.f };
 
 	//systems
 	void 				    sAnimation(sf::Time dt);

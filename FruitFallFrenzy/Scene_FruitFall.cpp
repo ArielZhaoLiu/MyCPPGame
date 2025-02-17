@@ -62,6 +62,19 @@ void Scene_FruitFall::loadLevel(const std::string& path)
 			sprite.setOrigin(0.f, 0.f);
 			sprite.setPosition(pos);
 		}
+		else if (token == "WinBkg") {
+			std::string name;
+			sf::Vector2f pos;
+			config >> name >> pos.x >> pos.y;
+			auto e = _entityManager.addEntity("winbkg");
+
+			// for background, no textureRect its just the whole texture
+			// and no center origin, position by top left corner
+			auto& sprite = e->addComponent<CSprite>(Assets::getInstance().getTexture(name)).sprite;
+			//e->addComponent<CTransform>(); // default ctor 0,0 pos 0,0 vel
+			sprite.setOrigin(0.f, 0.f);
+			sprite.setPosition(pos);
+		}
 		else if (token == "World") {
 			config >> _worldBounds.width >> _worldBounds.height;
 		}
@@ -433,9 +446,20 @@ void Scene_FruitFall::checkBombsCollision()
 	for (auto e : _entityManager.getEntities("bomb")) {
 		auto overlap = Physics::getOverlap(_player, e);
 		if (overlap.x > 0 && overlap.y > 0) {
-			_config.currentScore -= 200;
-			_config.countdownTime -= 30;
-			e->destroy();
+
+			// check first time explosion
+			if (!e->hasComponent<CAnimation>() || !e->getComponent<CAnimation>().hasExploded) {
+				_config.currentScore -= 200;
+				_config.countdownTime -= 30;
+
+				e->addComponent<CAnimation>(Assets::getInstance().getAnimation("explosion"));
+				_player->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("sadface");
+
+				e->getComponent<CAnimation>().hasExploded = true;
+			}
+			
+			
+			//e->destroy();
 		}
 	}
 }
@@ -475,7 +499,11 @@ void Scene_FruitFall::sAnimation(sf::Time dt)
 		// update all animations
 		if (e->getComponent<CAnimation>().has) {
 			auto& anim = e->getComponent<CAnimation>();
-			anim.animation.update(dt);			
+			anim.animation.update(dt);
+
+			if (anim.animation.getName() == "explosion" && anim.animation.hasEnded()) { // for explosion
+				e->destroy();
+			}
 		}
 	}
 }
@@ -528,11 +556,29 @@ void Scene_FruitFall::sUpdate(sf::Time dt)
 	}
 
 
-
-
+	
+	// Game Over
 	if (_config.countdownTime <= 0.f) {
-		//endGame(); // 倒计时结束，调用游戏结束函数
-		return;
+		
+		//_isPaused = true;
+		_showGameOverScreen = true;
+
+		_gameOverTimer += dt.asSeconds();
+
+		for (auto e : _entityManager.getEntities("fruit"))
+		{
+			e->getComponent<CTransform>().vel.y = -2.f; // fruits float up
+		}
+
+		_overlayAlpha += dt.asSeconds() * 100;
+		if (_overlayAlpha > 255) _overlayAlpha = 255;
+
+		if (_gameOverTimer >= 2.f) {
+			_victoryAlpha += dt.asSeconds() * 200;
+			if (_victoryAlpha > 255) _victoryAlpha = 255;
+		}
+
+
 	}
 
 	_entityManager.update();
@@ -569,7 +615,7 @@ void Scene_FruitFall::sRender()
 		anim.getSprite().setPosition(tfm.pos);
 		_game->window().draw(anim.getSprite());
 	}
-	
+
 	// Draw Entities except basket
 	for (auto e : _entityManager.getEntities()) {
 		if (e == _player) continue;
@@ -581,49 +627,68 @@ void Scene_FruitFall::sRender()
 			_game->window().draw(anim.getSprite());
 		}
 
-		//if (_drawAABB && e->hasComponent<CBoundingBox>()) {
-		//	auto& bb = e->getComponent<CBoundingBox>();
-		//	sf::RectangleShape rect;
-		//	rect.setSize(sf::Vector2f{ bb.size.x, bb.size.y });
-		//	centerOrigin(rect);
-		//	rect.setPosition(e->getComponent<CTransform>().pos);
-		//	rect.setFillColor(sf::Color{0, 0, 0, 0});
-		//	rect.setOutlineColor(sf::Color{ 0, 255, 0});
-		//	rect.setOutlineThickness(2.f);
-		//	_game->window().draw(rect);
-		//}
-	}
-	
-	
-
-	// Draw bounding box
-	for (auto e : _entityManager.getEntities()) {
-		if (_drawAABB && e->hasComponent<CBoundingBox>()) {
-			auto& bb = e->getComponent<CBoundingBox>();
-			sf::RectangleShape rect;
-			rect.setSize(sf::Vector2f{ bb.size.x, bb.size.y });
-			centerOrigin(rect);
-			rect.setPosition(e->getComponent<CTransform>().pos);
-			rect.setFillColor(sf::Color{ 0, 0, 0, 0 });
-			rect.setOutlineColor(sf::Color{ 0, 255, 0 });
-			rect.setOutlineThickness(2.f);
-			_game->window().draw(rect);
+		// Draw bounding box
+		for (auto e : _entityManager.getEntities()) {
+			if (_drawAABB && e->hasComponent<CBoundingBox>()) {
+				auto& bb = e->getComponent<CBoundingBox>();
+				sf::RectangleShape rect;
+				rect.setSize(sf::Vector2f{ bb.size.x, bb.size.y });
+				centerOrigin(rect);
+				rect.setPosition(e->getComponent<CTransform>().pos);
+				rect.setFillColor(sf::Color{ 0, 0, 0, 0 });
+				rect.setOutlineColor(sf::Color{ 0, 255, 0 });
+				rect.setOutlineThickness(2.f);
+				_game->window().draw(rect);
+			}
 		}
+
+		// draw timer
+		static sf::Text text("01:00", Assets::getInstance().getFont("Arcade"), 50);
+		text.setString(std::to_string((int)_config.countdownTime));
+		centerOrigin(text);
+		text.setFillColor(sf::Color::Black);
+		text.setPosition(90.f, 90.f);
+		_game->window().draw(text);
+
+
+		sf::Text currentScore("Current Score: " + std::to_string(_config.currentScore), Assets::getInstance().getFont("main"), 30);
+		centerOrigin(text);
+		currentScore.setPosition(20.f, 180.f);
+		currentScore.setFillColor(sf::Color::Black);
+
+		_game->window().draw(currentScore);
+
 	}
 
-	// draw timer
-	static sf::Text text("01:00", Assets::getInstance().getFont("Arial"), 50);
-	text.setString(std::to_string((int)_config.countdownTime));
-	centerOrigin(text);
-	text.setFillColor(sf::Color::Black);
-	text.setPosition(90.f, 90.f);
-	_game->window().draw(text);
 
 
-	sf::Text currentScore("Current Score: " + std::to_string(_config.currentScore), Assets::getInstance().getFont("Arial"), 30);
-	centerOrigin(text);
-	currentScore.setPosition(20.f, 180.f);
-	currentScore.setFillColor(sf::Color::Black);
+	//if (_showGameOverScreen)
+	//{
+	//	for (auto e : _entityManager.getEntities("winbkg")) {
+	//		if (e->getComponent<CSprite>().has) {
+	//			auto& sprite = e->getComponent<CSprite>().sprite;
+	//			_game->window().draw(sprite);
+	//		}
+	//	}
+	//	sf::Text gameOver("Game Over", Assets::getInstance().getFont("main"), 50);
+	//	centerOrigin(gameOver);
+	//	gameOver.setPosition(_worldBounds.width / 2.f, _worldBounds.height / 2.f);
+	//	gameOver.setFillColor(sf::Color::Black);
+	//	_game->window().draw(gameOver);
+	//}
 
-	_game->window().draw(currentScore);
+	if (_showGameOverScreen) {
+		sf::RectangleShape overlay(sf::Vector2f(_worldBounds.width, _worldBounds.height));
+		overlay.setFillColor(sf::Color(255, 240, 200, _overlayAlpha));
+		_game->window().draw(overlay);
+
+
+		sf::Sprite endScreen;
+		endScreen.setTexture(Assets::getInstance().getTexture("WinBackground"));
+		endScreen.setColor(sf::Color(255, 255, 255, _victoryAlpha));
+		_game->window().draw(endScreen);
+
+	}
+
+
 }
