@@ -115,4 +115,16 @@ struct CAutoPilot : public Component
 
 };
 
+struct CSlowDownEffect : public Component
+{
+	float duration;
+    float speedFactor;
+
+	CSlowDownEffect() = default;
+	CSlowDownEffect(float time, float factor) : duration(time), speedFactor(factor) {}
+
+};
+
+
+
 #endif //BREAKOUT_COMPONENTS_H

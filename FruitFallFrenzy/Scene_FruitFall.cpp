@@ -480,7 +480,11 @@ void Scene_FruitFall::checkPowerUpsCollision()
 			}
 			else if (e->getComponent<CAnimation>().animation.getName() == "slowdown")
 			{
-				_config.fruitSpeed -= 100;
+				if (!_player->hasComponent<CSlowDownEffect>()) {
+					_player->addComponent<CSlowDownEffect>(5.f, 100.f);
+					_config.fruitSpeed -= 100;
+				}				
+				
 			}
 			else if (e->getComponent<CAnimation>().animation.getName() == "pineapple")
 			{
@@ -488,6 +492,18 @@ void Scene_FruitFall::checkPowerUpsCollision()
 			}
 
 			e->destroy();
+		}
+	}
+}
+
+void Scene_FruitFall::updateSlowdownEffect(sf::Time dt)
+{
+	if (_player->hasComponent<CSlowDownEffect>()) {
+		auto& effect = _player->getComponent<CSlowDownEffect>();
+		effect.duration -= dt.asSeconds();
+		if (effect.duration <= 0.f) {
+			_config.fruitSpeed += effect.speedFactor;
+			_player->removeComponent<CSlowDownEffect>();
 		}
 	}
 }
@@ -581,12 +597,15 @@ void Scene_FruitFall::sUpdate(sf::Time dt)
 
 	}
 
+
+
 	_entityManager.update();
 
 	sAnimation(dt);
 	sMovement(dt);
 
 	sCollisions();
+	updateSlowdownEffect(dt);
 	adjustPlayerPosition(dt);
 	adjustFruitPosition(dt);
 
