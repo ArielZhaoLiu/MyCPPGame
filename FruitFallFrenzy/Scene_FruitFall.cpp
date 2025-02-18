@@ -131,7 +131,6 @@ void Scene_FruitFall::spawnFruit()
 	bb.x *= scale;
 	bb.y *= scale;
 	e->addComponent<CBoundingBox>(bb);
-	//e->addComponent<CTag>("fruit");
 }
 
 void Scene_FruitFall::spawnIcons()

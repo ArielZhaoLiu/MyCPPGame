@@ -19,7 +19,7 @@ struct LevelConfig {
 	float		spawnPowerUpInterval{ 5.f }; // time between power ups spawns
 	//int			gamePhase = 1;        // （1 = only fruits, 2 = adding bombs, 3 = adding power ups, 4 = more speed）
 	float		gameTime = 0.f;     // game total time
-	float		countdownTime{ 120.f }; // 60s countdown
+	float		countdownTime{ 30.f }; // 60s countdown
 	int			currentScore{ 0 };
 	int			highestScore{ 0 };
 
