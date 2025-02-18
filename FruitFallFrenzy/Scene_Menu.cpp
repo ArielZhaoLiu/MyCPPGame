@@ -1,4 +1,4 @@
-#include "Scene_Menu.h"
+﻿#include "Scene_Menu.h"
 #include "Scene_FruitFall.h"
 #include "MusicPlayer.h"
 #include <memory>
@@ -28,19 +28,26 @@ void Scene_Menu:: init()
 	registerAction(sf::Keyboard::D,			"PLAY");
 	registerAction(sf::Keyboard::Escape,	"QUIT");
 
-	_title = "Fruit Fall Frenzy";
-	_menuStrings.push_back("Level 1");
-	_menuStrings.push_back("Level 2");
-	_menuStrings.push_back("Level 3");
+	_menuStrings.push_back("START GAME");
+	_menuStrings.push_back("HINTS");
+	_menuStrings.push_back("SETTINGS");
+	_menuStrings.push_back("QUIT");
 
 	_levelPaths.push_back("../assets/level1.txt");
 	_levelPaths.push_back("../assets/level1.txt");
 	_levelPaths.push_back("../assets/level1.txt");
 
-	_menuText.setFont(Assets::getInstance().getFont("main"));
+	_menuText.setFont(Assets::getInstance().getFont("Frijole"));
 
-	const size_t CHAR_SIZE{ 64 };
+	const size_t CHAR_SIZE{ 28 };
 	_menuText.setCharacterSize(CHAR_SIZE);
+
+	if (_backgroundTexture.loadFromFile("../assets/Textures/menu_bg.jpg")) {
+		_backgroundSprite.setTexture(_backgroundTexture);
+	}
+	else {
+		std::cerr << "Failed to load background image!" << std::endl;
+	}
 
 }
 
@@ -57,8 +64,8 @@ void Scene_Menu::sRender()
 	view.setCenter(_game->window().getSize().x / 2.f, _game->window().getSize().y / 2.f);
 	_game->window().setView(view);
 
-	static const sf::Color selectedColor(255, 255, 255);
-	static const sf::Color normalColor(0, 0, 0);
+	static const sf::Color selectedColor(205, 133, 63);
+	static const sf::Color normalColor(30, 30, 30);
 
 	static const sf::Color backgroundColor(100, 100, 255);
 
@@ -69,6 +76,8 @@ void Scene_Menu::sRender()
 
 	_game->window().clear(backgroundColor);
 
+	_game->window().draw(_backgroundSprite);
+
 	_menuText.setFillColor(normalColor);
 	_menuText.setString(_title);
 	_menuText.setPosition(100, 80);
@@ -76,9 +85,15 @@ void Scene_Menu::sRender()
 
 	for (size_t i{ 0 }; i < _menuStrings.size(); ++i)
 	{
-		_menuText.setFillColor((i == _menuIndex ? selectedColor : normalColor));
-		_menuText.setPosition(100, 100 + (i+1) * 96);
-		_menuText.setString(_menuStrings.at(i));
+		_menuText.setString(_menuStrings.at(i)); //  getLocalBounds() get correct width
+		sf::FloatRect textBounds = _menuText.getLocalBounds();
+
+		_menuText.setOrigin(textBounds.width / 2.f, textBounds.height / 2.f); // 
+		_menuText.setPosition(_game->window().getSize().x / 2.f, 590 + (i + 1) * 70); // allign center
+
+		_menuText.setFillColor((i == _menuIndex) ? selectedColor : normalColor);
+		_menuText.setScale((i == _menuIndex) ? sf::Vector2f(1.2f, 1.2f) : sf::Vector2f(1.0f, 1.0f));
+
 		_game->window().draw(_menuText);
 	} 
 

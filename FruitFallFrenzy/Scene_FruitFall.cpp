@@ -456,9 +456,7 @@ void Scene_FruitFall::checkBombsCollision()
 				_player->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("sadface");
 
 				e->getComponent<CAnimation>().hasExploded = true;
-			}
-			
-			
+			}			
 			//e->destroy();
 		}
 	}
@@ -476,7 +474,7 @@ void Scene_FruitFall::checkPowerUpsCollision()
 			}
 			else if (e->getComponent<CAnimation>().animation.getName() == "magnet")
 			{
-				_config.currentScore += 10;
+				// to do 
 			}
 			else if (e->getComponent<CAnimation>().animation.getName() == "slowdown")
 			{
@@ -488,7 +486,7 @@ void Scene_FruitFall::checkPowerUpsCollision()
 			}
 			else if (e->getComponent<CAnimation>().animation.getName() == "pineapple")
 			{
-				_config.currentScore += 10;
+				// to do
 			}
 
 			e->destroy();
@@ -577,6 +575,7 @@ void Scene_FruitFall::sUpdate(sf::Time dt)
 	if (_config.countdownTime <= 0.f) {
 		
 		//_isPaused = true;
+		_config.countdownTime = 0;
 		_showGameOverScreen = true;
 
 		_gameOverTimer += dt.asSeconds();

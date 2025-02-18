@@ -5,6 +5,9 @@ Window  1500 1142
 Font    Arial           ../assets/fonts/arial.ttf
 Font    main            ../assets/fonts/Sansation.ttf
 Font    Arcade          ../assets/fonts/arcadeclassic.regular.ttf
+Font    Frijole         ../assets/fonts/Frijole-Regular.ttf
+Font    YaLike          ../assets/fonts/LoveYaLikeASister-Regular.ttf
+
 
 Music gameTheme         ../assets/Music/dp_frogger.flac
 Music missionTheme      ../assets/Music/dp_frogger_tweener.flac
@@ -50,7 +53,7 @@ Animation       esc      	FruitTree    1        no
 
 Animation       bomb      	FruitTree    5        yes
 Animation       explode      	FruitTree    5        yes
-Animation       explosion       Entities    20       no
+Animation       explosion       Entities    20        no
 
 Animation       magnet      	FruitTree    5        yes
 Animation       onfire      	FruitTree    5        yes
