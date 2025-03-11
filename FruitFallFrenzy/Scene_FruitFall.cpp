@@ -122,7 +122,7 @@ void Scene_FruitFall::spawnFruit()
 	pos.x = static_cast<float>(distX(rng));
 
 
-	auto vel = _config.fruitSpeed * uVecBearing(100);
+	auto vel = _config.fruitSpeed * uVecBearing(90);
 	auto e = _entityManager.addEntity("fruit");
 	e->addComponent<CTransform>(pos, vel);
 	e->addComponent<CAnimation>(Assets::getInstance().getAnimation(fruitType));
@@ -167,7 +167,7 @@ void Scene_FruitFall::spawnBombs()
 	std::uniform_int_distribution<int> distX(50, static_cast<int>(_worldBounds.width - 100));
 	pos.x = static_cast<float>(distX(rng));
 
-	auto vel = _config.fruitSpeed * uVecBearing(100);
+	auto vel = _config.fruitSpeed * uVecBearing(90);
 	auto e = _entityManager.addEntity("bomb");
 	e->addComponent<CTransform>(pos, vel);
 	e->addComponent<CAnimation>(Assets::getInstance().getAnimation(bomb));
@@ -192,7 +192,7 @@ void Scene_FruitFall::spawnPowerUps()
 	pos.x = static_cast<float>(distX(rng));
 
 
-	auto vel = _config.fruitSpeed * uVecBearing(100);
+	auto vel = _config.fruitSpeed * uVecBearing(90);
 	auto e = _entityManager.addEntity("powerUp");
 	e->addComponent<CTransform>(pos, vel);
 	e->addComponent<CAnimation>(Assets::getInstance().getAnimation(powerUpType));
@@ -579,9 +579,11 @@ void Scene_FruitFall::sUpdate(sf::Time dt)
 
 		_gameOverTimer += dt.asSeconds();
 
+		auto vel = _config.fruitSpeed * uVecBearing(-90);
+
 		for (auto e : _entityManager.getEntities("fruit"))
 		{
-			e->getComponent<CTransform>().vel.y = -2.f; // fruits float up
+			e->getComponent<CTransform>().vel = vel; // fruits float up
 		}
 
 		_overlayAlpha += dt.asSeconds() * 100;
