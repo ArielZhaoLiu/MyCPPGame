@@ -27,7 +27,8 @@ Sprite Title            Title 0 0 509 1743
 #
 # SOUNDS
 Sound death             ../assets/Sound/froggerDie.wav
-Sound hop               ../assets/Sound/froggerMove.wav
+Sound move              ../assets/Sound/basketMove.wav
+
 
 JSON                    ../assets/Textures/FruitTree.json
 JSON               	../assets/Textures/Entities.json

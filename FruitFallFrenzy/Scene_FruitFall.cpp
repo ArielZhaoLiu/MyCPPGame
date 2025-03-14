@@ -34,7 +34,7 @@ void Scene_FruitFall::init(const std::string& levelPath)
 	spawnIcons();
 
 	MusicPlayer::getInstance().play("gameTheme");
-	MusicPlayer::getInstance().setVolume(30);
+	MusicPlayer::getInstance().setVolume(16);
 }
 
 void Scene_FruitFall::loadLevel(const std::string& path)
@@ -316,7 +316,7 @@ void Scene_FruitFall::playerMovement()
 	{
 		transform.pos.x -=40;
 		_player->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("basket");
-		SoundPlayer::getInstance().play("hop");
+		SoundPlayer::getInstance().play("move");
 		pInput.left = false;
 	}
 		
@@ -324,7 +324,7 @@ void Scene_FruitFall::playerMovement()
 	{
 		transform.pos.x +=40; 
 		_player->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("basket");
-		SoundPlayer::getInstance().play("hop");
+		SoundPlayer::getInstance().play("move");
 		pInput.right = false;
 	}
 	
