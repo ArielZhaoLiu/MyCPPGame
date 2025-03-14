@@ -10,7 +10,7 @@ Font    YaLike          ../assets/fonts/LoveYaLikeASister-Regular.ttf
 
 
 Music gameTheme         ../assets/Music/game_theme.wav
-Music missionTheme      ../assets/Music/dp_frogger_tweener.flac
+Music missionTheme      ../assets/Music/menu_theme.mp3
 
 # Textures
 Texture Background      ../assets/Textures/bg.jpg

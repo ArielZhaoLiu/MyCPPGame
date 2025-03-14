@@ -26,6 +26,10 @@ struct LevelConfig {
 	std::shared_ptr<Entity>	magnetEntity = nullptr ;		// magnet power up entity pointer
 	float					magnetTimer = 0.0f;				// Magnet effect timer
 
+	std::shared_ptr<Entity>	slowdownEntity = nullptr;		// magnet power up entity pointer
+	float					slowdownTimer = 0.0f;			// Magnet effect timer
+
+
 	std::vector<std::string> fruitTypes = { "mango", "apple", "banana", "watermelon", "cherry", "strawbury"};
 	std::vector<std::string> bombTypes = { "bomb" };
 	std::vector<std::string> powerupTypes = { "slowdown", "magnet", "pineapple", "time"};

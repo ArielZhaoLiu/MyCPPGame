@@ -19,7 +19,7 @@ Scene_Menu::Scene_Menu(GameEngine* gameEngine)
 void Scene_Menu:: init()
 {
 	MusicPlayer::getInstance().play("menuTheme");
-	MusicPlayer::getInstance().setVolume(50);
+	MusicPlayer::getInstance().setVolume(0);
 
     registerAction(sf::Keyboard::W,			"UP");
     registerAction(sf::Keyboard::Up,		"UP");

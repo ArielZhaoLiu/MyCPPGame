@@ -490,9 +490,13 @@ void Scene_FruitFall::checkPowerUpsCollision()
 				if (!_player->hasComponent<CSlowDownEffect>()) {
 					_player->addComponent<CSlowDownEffect>(5.f, 100.f);
 					_config.fruitSpeed -= 100;
-				}				
-				
-				e->destroy();
+				}		
+
+				if (_config.slowdownEntity == nullptr) {
+					_config.slowdownEntity = e;
+					_config.slowdownTimer = 5.f;
+				}
+			
 			}
 			else if (e->getComponent<CAnimation>().animation.getName() == "pineapple")
 			{
@@ -512,6 +516,21 @@ void Scene_FruitFall::updateSlowdownEffect(sf::Time dt)
 		if (effect.duration <= 0.f) {
 			_config.fruitSpeed += effect.speedFactor;
 			_player->removeComponent<CSlowDownEffect>();
+		}
+	}
+
+	// slowdown effect attached to player
+	if (_config.slowdownEntity) {
+		auto slowdownPos = _player->getComponent<CTransform>().pos;
+		float offsetX = -80.f;
+		float offsetY = -30.f;
+
+		_config.slowdownEntity->getComponent<CTransform>().pos = slowdownPos + sf::Vector2f{ offsetX, offsetY };
+
+		_config.slowdownTimer -= dt.asSeconds();
+		if (_config.slowdownTimer <= 0.f) {
+			_config.slowdownEntity->destroy();
+			_config.slowdownEntity = nullptr;
 		}
 	}
 }
@@ -535,6 +554,7 @@ void Scene_FruitFall::updateMagnetEffect(sf::Time dt)
 		}
 	}
 
+	// magnet effect attached to player
 	if (_config.magnetEntity) {
 		auto magnetPos = _player->getComponent<CTransform>().pos;
 

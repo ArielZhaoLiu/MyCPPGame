@@ -8,7 +8,7 @@
 
 
 MusicPlayer::MusicPlayer() {
-    _filenames["menuTheme"] = "../assets/Music/dp_frogger_tweener.flac";
+    _filenames["menuTheme"] = "../assets/Music/menu_theme.mp3";
     _filenames["gameTheme"] = "../assets/Music/game_theme.wav";
 }
 
