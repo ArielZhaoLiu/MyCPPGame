@@ -9,6 +9,7 @@
 
 MusicPlayer::MusicPlayer() {
     _filenames["menuTheme"] = "../assets/Music/menu_theme.mp3";
+    _filenames["menuTheme2"] = "../assets/Music/menu_theme2.mp3";
     _filenames["gameTheme"] = "../assets/Music/game_theme.wav";
 }
 

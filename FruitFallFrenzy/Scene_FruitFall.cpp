@@ -459,6 +459,7 @@ void Scene_FruitFall::checkBombsCollision()
 				_player->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("sadface");
 
 				e->getComponent<CAnimation>().hasExploded = true;
+
 			}			
 			//e->destroy();
 		}
@@ -485,8 +486,10 @@ void Scene_FruitFall::checkPowerUpsCollision()
 
 				if (_config.magnetEntity == nullptr) {
 					_config.magnetEntity = e;
-					_config.magnetTimer = 5.f;
+					_config.magnetTimer = 6.f;
 				}
+
+				SoundPlayer::getInstance().play("magnet");
 
 			}
 			else if (e->getComponent<CAnimation>().animation.getName() == "slowdown")
@@ -586,7 +589,9 @@ void Scene_FruitFall::sAnimation(sf::Time dt)
 			anim.animation.update(dt);
 
 			if (anim.animation.getName() == "explosion" && anim.animation.hasEnded()) { // for explosion
+				SoundPlayer::getInstance().play("sayNo");
 				e->destroy();
+				
 			}
 		}
 	}
