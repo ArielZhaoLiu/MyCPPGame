@@ -67,6 +67,7 @@ class Scene_FruitFall : public Scene {
 	void                    checkBombsCollision();
 	void                    checkPowerUpsCollision();
 	void                    updateSlowdownEffect(sf::Time dt);
+	void                    updateMagnetEffect(sf::Time dt);
 	void                    init(const std::string& path);
 	void                    loadLevel(const std::string& path);
 

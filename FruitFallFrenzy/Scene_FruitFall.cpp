@@ -473,7 +473,9 @@ void Scene_FruitFall::checkPowerUpsCollision()
 			}
 			else if (e->getComponent<CAnimation>().animation.getName() == "magnet")
 			{
-				// to do 
+				if (!_player->hasComponent<CMagnetEffect>()) {
+					_player->addComponent<CMagnetEffect>(5.f);
+				}
 			}
 			else if (e->getComponent<CAnimation>().animation.getName() == "slowdown")
 			{
@@ -501,6 +503,26 @@ void Scene_FruitFall::updateSlowdownEffect(sf::Time dt)
 		if (effect.duration <= 0.f) {
 			_config.fruitSpeed += effect.speedFactor;
 			_player->removeComponent<CSlowDownEffect>();
+		}
+	}
+}
+
+void Scene_FruitFall::updateMagnetEffect(sf::Time dt)
+{
+	if (_player->hasComponent<CMagnetEffect>()) {
+		auto& effect = _player->getComponent<CMagnetEffect>();
+
+		for (auto e : _entityManager.getEntities("fruit")) {
+			auto& tfm = e->getComponent<CTransform>();
+			auto& playerTfm = _player->getComponent<CTransform>();
+			auto dir = playerTfm.pos - tfm.pos;
+			auto vel = normalize(dir) * 360.f;
+			tfm.vel = vel;
+		}
+
+		effect.duration -= dt.asSeconds();
+		if (effect.duration <= 0.f) {
+			_player->removeComponent<CMagnetEffect>();
 		}
 	}
 }
@@ -606,6 +628,7 @@ void Scene_FruitFall::sUpdate(sf::Time dt)
 
 	sCollisions();
 	updateSlowdownEffect(dt);
+	updateMagnetEffect(dt);
 	adjustPlayerPosition(dt);
 	adjustFruitPosition(dt);
 
@@ -647,18 +670,17 @@ void Scene_FruitFall::sRender()
 		}
 
 		// Draw bounding box
-		for (auto e : _entityManager.getEntities()) {
-			if (_drawAABB && e->hasComponent<CBoundingBox>()) {
-				auto& bb = e->getComponent<CBoundingBox>();
-				sf::RectangleShape rect;
-				rect.setSize(sf::Vector2f{ bb.size.x, bb.size.y });
-				centerOrigin(rect);
-				rect.setPosition(e->getComponent<CTransform>().pos);
-				rect.setFillColor(sf::Color{ 0, 0, 0, 0 });
-				rect.setOutlineColor(sf::Color{ 0, 255, 0 });
-				rect.setOutlineThickness(2.f);
-				_game->window().draw(rect);
-			}
+
+		if (_drawAABB && e->hasComponent<CBoundingBox>()) {
+			auto& bb = e->getComponent<CBoundingBox>();
+			sf::RectangleShape rect;
+			rect.setSize(sf::Vector2f{ bb.size.x, bb.size.y });
+			centerOrigin(rect);
+			rect.setPosition(e->getComponent<CTransform>().pos);
+			rect.setFillColor(sf::Color{ 0, 0, 0, 0 });
+			rect.setOutlineColor(sf::Color{ 0, 255, 0 });
+			rect.setOutlineThickness(2.f);
+			_game->window().draw(rect);
 		}
 
 		// draw timer

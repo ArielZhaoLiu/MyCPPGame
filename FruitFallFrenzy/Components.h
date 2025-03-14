@@ -125,6 +125,13 @@ struct CSlowDownEffect : public Component
 
 };
 
+struct CMagnetEffect : public Component
+{
+	float duration;
+	CMagnetEffect() = default;
+	CMagnetEffect(float time) : duration(time){}
+};
+
 
 
 #endif //BREAKOUT_COMPONENTS_H
