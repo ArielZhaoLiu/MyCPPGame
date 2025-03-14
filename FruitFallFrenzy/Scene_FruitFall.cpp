@@ -34,7 +34,7 @@ void Scene_FruitFall::init(const std::string& levelPath)
 	spawnIcons();
 
 	MusicPlayer::getInstance().play("gameTheme");
-	MusicPlayer::getInstance().setVolume(16);
+	MusicPlayer::getInstance().setVolume(12);
 }
 
 void Scene_FruitFall::loadLevel(const std::string& path)
@@ -409,6 +409,8 @@ void Scene_FruitFall::checkFruitsCollision()
 		auto overlap = Physics::getOverlap(_player, e);
 		if (overlap.x > 0 && overlap.y > 0) {
 
+			SoundPlayer::getInstance().play("catch2");
+
 			if (e->getComponent<CAnimation>().animation.getName() == "apple")
 			{
 				_config.currentScore += 10;
@@ -433,6 +435,7 @@ void Scene_FruitFall::checkFruitsCollision()
 			{
 				_config.currentScore += 100;
 			}
+
 			
 			e->destroy();
 		}
@@ -451,6 +454,7 @@ void Scene_FruitFall::checkBombsCollision()
 				_config.currentScore -= 200;
 				_config.countdownTime -= 30;
 
+				SoundPlayer::getInstance().play("explosion");
 				e->addComponent<CAnimation>(Assets::getInstance().getAnimation("explosion"));
 				_player->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("sadface");
 

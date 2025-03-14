@@ -26,8 +26,12 @@ Sprite Title            Title 0 0 509 1743
 
 #
 # SOUNDS
-Sound death             ../assets/Sound/froggerDie.wav
 Sound move              ../assets/Sound/basketMove.wav
+Sound catch             ../assets/Sound/catchFruit.wav
+Sound catch2             ../assets/Sound/catchFruit2.wav
+Sound catch3             ../assets/Sound/catchFruit3.wav
+Sound explosion             ../assets/Sound/explosion.wav
+
 
 
 JSON                    ../assets/Textures/FruitTree.json
