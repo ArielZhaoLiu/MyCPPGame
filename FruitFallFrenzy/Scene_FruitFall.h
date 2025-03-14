@@ -10,18 +10,21 @@
 
 
 struct LevelConfig {
-	float       fruitSpeed{ 200.f };
-	float		spawnFruitTimer = 0.f;
-	float		spawnBombTimer = 0.f;
-	float		spawnPowerUpTimer = 0.f;
-	float		spawnFruitInterval{ 1.f }; // time between fruit spawns
-	float		spawnBombsInterval{ 3.f }; // time between bombs spawns
-	float		spawnPowerUpInterval{ 5.f }; // time between power ups spawns
-	//int			gamePhase = 1;        // （1 = only fruits, 2 = adding bombs, 3 = adding power ups, 4 = more speed）
-	float		gameTime = 0.f;     // game total time
-	float		countdownTime{ 100.f }; // 60s countdown
-	int			currentScore{ 0 };
-	int			highestScore{ 0 };
+	float					fruitSpeed{ 200.f };
+	float					spawnFruitTimer = 0.f;
+	float					spawnBombTimer = 0.f;
+	float					spawnPowerUpTimer = 0.f;
+	float					spawnFruitInterval{ 1.f };		// time between fruit spawns
+	float					spawnBombsInterval{ 3.f };		// time between bombs spawns
+	float					spawnPowerUpInterval{ 5.f };	// time between power ups spawns
+	//int						gamePhase = 1;        // （1 = only fruits, 2 = adding bombs, 3 = adding power ups, 4 = more speed）
+	float					gameTime = 0.f;					// game total time
+	float					countdownTime{ 100.f };			// 60s countdown
+	int						currentScore{ 0 };
+	int						highestScore{ 0 };
+
+	std::shared_ptr<Entity>	magnetEntity = nullptr ;		// magnet power up entity pointer
+	float					magnetTimer = 0.0f;				// Magnet effect timer
 
 	std::vector<std::string> fruitTypes = { "mango", "apple", "banana", "watermelon", "cherry", "strawbury"};
 	std::vector<std::string> bombTypes = { "bomb" };

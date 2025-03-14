@@ -470,12 +470,20 @@ void Scene_FruitFall::checkPowerUpsCollision()
 			if (e->getComponent<CAnimation>().animation.getName() == "time")
 			{
 				_config.countdownTime += 5;
+
+				e->destroy();
 			}
 			else if (e->getComponent<CAnimation>().animation.getName() == "magnet")
 			{
 				if (!_player->hasComponent<CMagnetEffect>()) {
 					_player->addComponent<CMagnetEffect>(5.f);
 				}
+
+				if (_config.magnetEntity == nullptr) {
+					_config.magnetEntity = e;
+					_config.magnetTimer = 5.f;
+				}
+
 			}
 			else if (e->getComponent<CAnimation>().animation.getName() == "slowdown")
 			{
@@ -484,13 +492,14 @@ void Scene_FruitFall::checkPowerUpsCollision()
 					_config.fruitSpeed -= 100;
 				}				
 				
+				e->destroy();
 			}
 			else if (e->getComponent<CAnimation>().animation.getName() == "pineapple")
 			{
 				// to do
 			}
 
-			e->destroy();
+			
 		}
 	}
 }
@@ -523,6 +532,22 @@ void Scene_FruitFall::updateMagnetEffect(sf::Time dt)
 		effect.duration -= dt.asSeconds();
 		if (effect.duration <= 0.f) {
 			_player->removeComponent<CMagnetEffect>();
+		}
+	}
+
+	if (_config.magnetEntity) {
+		auto magnetPos = _player->getComponent<CTransform>().pos;
+
+		float offsetX = 140.f;
+		float offsetY = -30.f;
+
+		_config.magnetEntity->getComponent<CTransform>().pos = magnetPos + sf::Vector2f{ offsetX, offsetY };
+
+
+		_config.magnetTimer -= dt.asSeconds();
+		if (_config.magnetTimer <= 0.f) {
+			_config.magnetEntity->destroy();
+			_config.magnetEntity = nullptr;
 		}
 	}
 }
