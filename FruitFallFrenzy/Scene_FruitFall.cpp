@@ -629,9 +629,68 @@ void Scene_FruitFall::sUpdate(sf::Time dt)
 	_config.countdownTime -= dt.asSeconds(); // countdown time decrease
 
 
+
+	// game phase
+
+	if (_config.gameTime >= 90) {
+		_config.fruitSpeed = 300.f;
+		_config.spawnFruitInterval = 0.1f;
+		_config.spawnPowerUpInterval = 2.f;
+		_config.spawnBombsInterval = 0.2f;
+	}
+
+	if (_config.gameTime >= 85) {
+		_config.fruitSpeed = 400.f;
+		_config.spawnFruitInterval = 0.1f;
+		_config.spawnPowerUpInterval = 2.f;
+		_config.spawnBombsInterval = 0.2f;
+	}
+
+	if (_config.gameTime >= 80) {
+		_config.fruitSpeed = 600.f;
+		_config.spawnFruitInterval = 0.1f;
+		_config.spawnPowerUpInterval = 2.f;
+		_config.spawnBombsInterval = 0.2f;
+
+	}
+
+	if (_config.gameTime >= 60) {
+		_config.fruitSpeed = 500.f;
+		_config.spawnFruitInterval = 0.2f;
+		_config.spawnPowerUpInterval = 2.f;
+		_config.spawnBombsInterval = 0.5f;
+
+	}
+
+	if (_config.gameTime >= 40) {
+		_config.fruitSpeed = 500.f;
+		_config.spawnFruitInterval = 0.3f;
+		_config.spawnPowerUpInterval = 2.f;
+		_config.spawnBombsInterval = 1.f;
+
+	}
+
+	if (_config.gameTime >= 30) {
+		_config.fruitSpeed = 400.f;
+		_config.spawnFruitInterval = 0.4f;
+		_config.spawnPowerUpInterval = 3.f;
+		
+	}
+
+	if (_config.gameTime >= 15) {
+		_config.fruitSpeed = 350.f;
+		_config.spawnFruitInterval = 0.5f;
+		_config.spawnPowerUpInterval = 4.f;
+		_config.spawnBombsInterval = 2.3f;
+	}
+
 	if (_config.gameTime >= 13 && _config.spawnPowerUpTimer >= _config.spawnPowerUpInterval) {
 		spawnPowerUps();
 		_config.spawnPowerUpTimer = 0.f;
+	}
+
+	if (_config.gameTime >= 10) {
+		_config.fruitSpeed = 300.f;
 	}
 
 	if (_config.gameTime >= 5 && _config.spawnBombTimer >= _config.spawnBombsInterval) {
@@ -669,8 +728,6 @@ void Scene_FruitFall::sUpdate(sf::Time dt)
 			_victoryAlpha += dt.asSeconds() * 200;
 			if (_victoryAlpha > 255) _victoryAlpha = 255;
 		}
-
-
 	}
 
 
