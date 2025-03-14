@@ -1,14 +1,15 @@
-//
+﻿//
 // Created by David Burchill on 2022-11-29.
 //
 
 #include "MusicPlayer.h"
 #include <stdexcept>
+#include <iostream>
 
 
 MusicPlayer::MusicPlayer() {
-    _filenames["menuTheme"] = "../assets/Music/dp_frogger.flac";
-    _filenames["gameTheme"] = "../assets/Music/dp_frogger_tweener.flac";
+    _filenames["menuTheme"] = "../assets/Music/dp_frogger_tweener.flac";
+    _filenames["gameTheme"] = "../assets/Music/game_theme.wav";
 }
 
 void MusicPlayer::addSong(const std::string&name, const std::string&path) {
@@ -22,7 +23,7 @@ MusicPlayer& MusicPlayer::getInstance() {
 
 
 void MusicPlayer::play(String theme) {
-    if (!_music.openFromFile(_filenames[theme]))
+    if (!_music.openFromFile(_filenames[theme])) 
         throw std::runtime_error("Music could not open file");
 
     _music.setVolume(_volume);

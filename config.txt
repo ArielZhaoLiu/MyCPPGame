@@ -9,7 +9,7 @@ Font    Frijole         ../assets/fonts/Frijole-Regular.ttf
 Font    YaLike          ../assets/fonts/LoveYaLikeASister-Regular.ttf
 
 
-Music gameTheme         ../assets/Music/dp_frogger.flac
+Music gameTheme         ../assets/Music/game_theme.wav
 Music missionTheme      ../assets/Music/dp_frogger_tweener.flac
 
 # Textures

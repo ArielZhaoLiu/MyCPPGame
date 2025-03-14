@@ -34,7 +34,7 @@ void Scene_FruitFall::init(const std::string& levelPath)
 	spawnIcons();
 
 	MusicPlayer::getInstance().play("gameTheme");
-	MusicPlayer::getInstance().setVolume(50);
+	MusicPlayer::getInstance().setVolume(30);
 }
 
 void Scene_FruitFall::loadLevel(const std::string& path)
