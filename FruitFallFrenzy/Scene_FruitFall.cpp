@@ -118,7 +118,7 @@ void Scene_FruitFall::spawnFruit()
 
 	// spawn random position
 	auto pos = sf::Vector2f{ 0.f, 0.f };
-	std::uniform_int_distribution<int> distX(50, static_cast<int>(_worldBounds.width - 100));
+	std::uniform_int_distribution<int> distX(180, static_cast<int>(_worldBounds.width - 200));
 	pos.x = static_cast<float>(distX(rng));
 
 
@@ -495,8 +495,8 @@ void Scene_FruitFall::checkPowerUpsCollision()
 			else if (e->getComponent<CAnimation>().animation.getName() == "slowdown")
 			{
 				if (!_player->hasComponent<CSlowDownEffect>()) {
-					_player->addComponent<CSlowDownEffect>(5.f, 100.f);
-					_config.fruitSpeed -= 100;
+					_player->addComponent<CSlowDownEffect>(5.f, 300.f);
+					_config.fruitSpeed -= 300;
 				}		
 
 				if (_config.slowdownEntity == nullptr) {
@@ -632,21 +632,21 @@ void Scene_FruitFall::sUpdate(sf::Time dt)
 
 	// game phase
 
-	if (_config.gameTime >= 90) {
+	if (_config.gameTime >= 90 && _config.slowdownEntity == nullptr) {
 		_config.fruitSpeed = 300.f;
 		_config.spawnFruitInterval = 0.1f;
 		_config.spawnPowerUpInterval = 2.f;
 		_config.spawnBombsInterval = 0.2f;
 	}
 
-	if (_config.gameTime >= 85) {
+	if (_config.gameTime >= 85 && _config.slowdownEntity == nullptr) {
 		_config.fruitSpeed = 400.f;
 		_config.spawnFruitInterval = 0.1f;
 		_config.spawnPowerUpInterval = 2.f;
 		_config.spawnBombsInterval = 0.2f;
 	}
 
-	if (_config.gameTime >= 80) {
+	if (_config.gameTime >= 80 && _config.slowdownEntity == nullptr) {
 		_config.fruitSpeed = 600.f;
 		_config.spawnFruitInterval = 0.1f;
 		_config.spawnPowerUpInterval = 2.f;
@@ -654,7 +654,7 @@ void Scene_FruitFall::sUpdate(sf::Time dt)
 
 	}
 
-	if (_config.gameTime >= 60) {
+	if (_config.gameTime >= 60 && _config.slowdownEntity == nullptr) {
 		_config.fruitSpeed = 500.f;
 		_config.spawnFruitInterval = 0.2f;
 		_config.spawnPowerUpInterval = 2.f;
@@ -662,7 +662,7 @@ void Scene_FruitFall::sUpdate(sf::Time dt)
 
 	}
 
-	if (_config.gameTime >= 40) {
+	if (_config.gameTime >= 40 && _config.slowdownEntity == nullptr) {
 		_config.fruitSpeed = 500.f;
 		_config.spawnFruitInterval = 0.3f;
 		_config.spawnPowerUpInterval = 2.f;
@@ -670,14 +670,14 @@ void Scene_FruitFall::sUpdate(sf::Time dt)
 
 	}
 
-	if (_config.gameTime >= 30) {
+	if (_config.gameTime >= 30 && _config.slowdownEntity == nullptr) {
 		_config.fruitSpeed = 400.f;
 		_config.spawnFruitInterval = 0.4f;
 		_config.spawnPowerUpInterval = 3.f;
 		
 	}
 
-	if (_config.gameTime >= 15) {
+	if (_config.gameTime >= 15 && _config.slowdownEntity == nullptr) {
 		_config.fruitSpeed = 350.f;
 		_config.spawnFruitInterval = 0.5f;
 		_config.spawnPowerUpInterval = 4.f;
