@@ -388,7 +388,7 @@ void Scene_FruitFall::adjustPlayerPosition(sf::Time dt)
 
 void Scene_FruitFall::adjustFruitPosition(sf::Time dt)
 {
-	for (auto e : _entityManager.getEntities("fruit")) {
+	for (auto e : _entityManager.getEntities()) {
 		auto& tfm = e->getComponent<CTransform>();
 
 		// if fruit is out of bounds, remove it
@@ -609,6 +609,7 @@ void Scene_FruitFall::sMovement(sf::Time dt)
 			tfm.pos += tfm.vel * dt.asSeconds();
 		}
 	}
+
 }
 
 
@@ -616,7 +617,11 @@ void Scene_FruitFall::sUpdate(sf::Time dt)
 {
 	if (_isPaused)
 		return;
+	
+	//auto e = _entityManager.getEntities();  // check how many entities are there
+	//std::cout << e.size() << "\n";
 
+	_entityManager.update();
 	SoundPlayer::getInstance().removeStoppedSounds();
 
 	_config.spawnFruitTimer += dt.asSeconds();
