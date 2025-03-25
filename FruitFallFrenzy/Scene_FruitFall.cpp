@@ -324,6 +324,8 @@ void Scene_FruitFall::playerMovement()
 	{
 		transform.pos.x +=40; 
 		_player->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("basket");
+		_player->getComponent<CAnimation>().animation._sprite.setScale(-1.f, 1.f);
+	
 		SoundPlayer::getInstance().play("move");
 		pInput.right = false;
 	}
