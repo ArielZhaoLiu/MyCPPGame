@@ -49,10 +49,63 @@ void Scene_Menu:: init()
 		std::cerr << "Failed to load background image!" << std::endl;
 	}
 
+	if (_frontTreeTexture.loadFromFile("../assets/Textures/menu_tree_front.png")) {
+		_frontTreeSprite.setTexture(_frontTreeTexture);
+	}
+	else {
+		std::cerr << "Failed to load background image!" << std::endl;
+	}
+
+	// for clouds
+	std::string cloudPaths[3] = {
+	"../assets/Textures/cloud1.png",
+	"../assets/Textures/cloud2.png",
+	"../assets/Textures/cloud3.png"
+	};
+
+	for (int i = 0; i < 6; ++i) {
+		int texIndex = i / 2;  // 2 clouds each line using the same texture.
+
+		if (_cloudTextures[texIndex].loadFromFile(cloudPaths[texIndex])) {
+			_clouds[i].setTexture(_cloudTextures[texIndex]);
+
+
+			// initial spawn position
+			float startX = static_cast<float>(900 * i);
+			float startY = 150.f + texIndex * 180.f;
+			//float startY = 800.f + (i * 600.f);  
+			_clouds[i].setPosition(startX, startY);
+			_cloudBasePos[i] = _clouds[i].getPosition();
+			
+			_cloudSpeeds[i] = sf::Vector2f(40.f + texIndex * 20.f, 0.f);
+			//_cloudSpeeds[i] = sf::Vector2f(40.f + (i % 3) * 30.f, 0.f); 
+		}
+		else {
+			std::cerr << "Failed to load cloud image: " << cloudPaths[texIndex] << std::endl;
+		}
+	}
+
 }
 
 void Scene_Menu::update(sf::Time dt)
 {
+	float windowWidth = static_cast<float>(_game->window().getSize().x);
+
+	for (int i = 0; i < 6; ++i) {
+		sf::Vector2f pos = _clouds[i].getPosition();
+		pos += _cloudSpeeds[i] * dt.asSeconds();
+
+		if (pos.x > windowWidth + _clouds[i].getGlobalBounds().width) {
+			pos.x = -_clouds[i].getGlobalBounds().width;
+		}
+
+		int rowIndex = i / 2;
+		float floatOffset = std::sin(_cloudFloatTime * (0.5f + rowIndex * 0.2f)) * 5.f;
+		_clouds[i].setPosition(pos.x, _cloudBasePos[i].y + floatOffset);
+
+	}
+
+	_cloudFloatTime += dt.asSeconds();
 	_entityManager.update();
 }
 
@@ -74,9 +127,14 @@ void Scene_Menu::sRender()
 	footer.setFillColor(normalColor);
 	footer.setPosition(100, 1050);
 
-	_game->window().clear(backgroundColor);
+	_game->window().draw(_backgroundSprite); // draw bg
 
-	_game->window().draw(_backgroundSprite);
+	// ☁️ 云层渲染
+	for (int i = 0; i < 5; ++i) {
+		_game->window().draw(_clouds[i]);
+	}
+
+	_game->window().draw(_frontTreeSprite); // draw front tree
 
 	_menuText.setFillColor(normalColor);
 	_menuText.setString(_title);
