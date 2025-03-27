@@ -129,7 +129,7 @@ void Scene_Menu::sRender()
 
 	_game->window().draw(_backgroundSprite); // draw bg
 
-	// ☁️ 云层渲染
+	// ☁️ Clouds
 	for (int i = 0; i < 5; ++i) {
 		_game->window().draw(_clouds[i]);
 	}

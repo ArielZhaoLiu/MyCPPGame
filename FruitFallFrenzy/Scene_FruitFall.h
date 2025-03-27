@@ -34,6 +34,13 @@ struct LevelConfig {
 	std::vector<std::string> bombTypes = { "bomb" };
 	std::vector<std::string> powerupTypes = { "slowdown", "magnet", "pineapple", "time"};
 
+	sf::Texture _cloudTextures[6];
+	sf::Sprite _clouds[6];
+	sf::Vector2f _cloudSpeeds[6];
+	sf::Vector2f _cloudBasePos[6]; // 存储基础位置用于上下浮动
+
+	float _cloudFloatTime = 0.f;
+
 };
 
 

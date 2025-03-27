@@ -2,5 +2,7 @@
 
 World 1500 1142
 Bkg Background 0 0
+GameFrontBkg GameFrontBackground 0 0
 WinBkg WinBackground 0 0
+
 
