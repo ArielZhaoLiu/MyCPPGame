@@ -20,6 +20,7 @@ Texture WinBackground   ../assets/Textures/win_bg.jpg
 Texture Title           ../assets/Textures/FroggerTitle.png
 Texture FruitTree       ../assets/Textures/FruitTree.png
 Texture Entities    	../assets/Textures/Entities.png
+Texture Baskets    	../assets/Textures/Baskets.png
 
 
 # Sprites
@@ -41,6 +42,7 @@ Sound magnet             ../assets/Sound/magnet.wav
 
 JSON                    ../assets/Textures/FruitTree.json
 JSON               	../assets/Textures/Entities.json
+JSON               	../assets/Textures/Baskets.json
 
 
 #
@@ -70,3 +72,6 @@ Animation       onfire      	FruitTree    5        yes
 Animation       pineapple      	FruitTree    5        yes
 Animation       slowdown      	FruitTree    5        yes
 Animation       time      	FruitTree    5        yes
+
+Animation       angel      	Baskets      7        yes
+Animation       devil      	Baskets      7        yes

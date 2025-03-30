@@ -11,23 +11,24 @@ private:
 	int							_menuIndex{0};
 	std::string					_title;
 
-	sf::Texture _backgroundTexture;
-	sf::Sprite _backgroundSprite;
+	sf::Texture					_backgroundTexture;
+	sf::Sprite					_backgroundSprite;
 
-	sf::Texture _frontTreeTexture;
-	sf::Sprite _frontTreeSprite;
+	sf::Texture					_frontTreeTexture;
+	sf::Sprite					_frontTreeSprite;
 
-	sf::Texture _cloudTextures[7];
-	sf::Sprite _clouds[7];
-	sf::Vector2f _cloudSpeeds[6];
-	sf::Vector2f _cloudBasePos[6]; // 存储基础位置用于上下浮动
+	sf::Texture					_cloudTextures[7];
+	sf::Sprite					_clouds[7];
+	sf::Vector2f				_cloudSpeeds[6];
+	sf::Vector2f				_cloudBasePos[6]; // save initial position for floating effect
 
-	float _cloudFloatTime = 0.f;
+	float						_cloudFloatTime = 0.f;
 
 	void init();
 	void onEnd() override;
 
 public:
+	float					speed{ 100.f };
 
 	Scene_Menu(GameEngine* gameEngine);
 
@@ -36,6 +37,7 @@ public:
 	void sRender() override;
 	void sDoAction(const Command& action) override;
 	
-
+	// helper functions
+	void                    spawnAngelAndDevil();
 };
 

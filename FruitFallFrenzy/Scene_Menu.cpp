@@ -85,6 +85,8 @@ void Scene_Menu:: init()
 		}
 	}
 
+	spawnAngelAndDevil();
+
 }
 
 void Scene_Menu::update(sf::Time dt)
@@ -107,6 +109,14 @@ void Scene_Menu::update(sf::Time dt)
 
 	_cloudFloatTime += dt.asSeconds();
 	_entityManager.update();
+
+	for (auto e : _entityManager.getEntities()) {
+		// update all animations
+		if (e->getComponent<CAnimation>().has) {
+			auto& anim = e->getComponent<CAnimation>();
+			anim.animation.update(dt);
+		}
+	}
 }
 
 
@@ -158,6 +168,18 @@ void Scene_Menu::sRender()
 	_game->window().draw(footer);
 	//m_game->window().display();
 
+
+	// for draw angel and devil
+	for (auto e : _entityManager.getEntities()) {
+
+		if (e->getComponent<CAnimation>().has) {
+			auto& anim = e->getComponent<CAnimation>().animation;
+			auto& tfm = e->getComponent<CTransform>();
+			anim.getSprite().setPosition(tfm.pos);
+			_game->window().draw(anim.getSprite());
+		}
+	}
+
 }
 
 
@@ -182,5 +204,20 @@ void Scene_Menu::sDoAction(const Command& action)
 			onEnd();
 		}
 	}
+
+}
+
+void Scene_Menu::spawnAngelAndDevil()
+{
+	auto angel = _entityManager.addEntity("angel");
+	auto& animAngel = angel->addComponent<CAnimation>(Assets::getInstance().getAnimation("angel")).animation;
+	auto& tfmAngel = angel->addComponent<CTransform>(sf::Vector2f(1243.f, 837.f));
+	
+
+
+	auto devil = _entityManager.addEntity("devil");
+	auto& animDevil = devil->addComponent<CAnimation>(Assets::getInstance().getAnimation("devil")).animation;
+	auto& tfmDevil = devil->addComponent<CTransform>(sf::Vector2f(243.f, 846.f));
+
 
 }
