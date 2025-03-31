@@ -479,8 +479,25 @@ void Scene_FruitFall::adjustPlayerPosition(sf::Time dt)
 
 void Scene_FruitFall::adjustFruitPosition(sf::Time dt)
 {
-	for (auto e : _entityManager.getEntities()) {
+	for (auto e : _entityManager.getEntities("fruit")) {
+
 		auto& tfm = e->getComponent<CTransform>();
+		auto& playerPos = _player->getComponent<CTransform>().pos;
+		auto fruitSize = e->getComponent<CBoundingBox>();
+		auto& stateComp = e->getComponent<CState>(); 
+
+		if (stateComp.state == "caught") {
+			
+			// First time caught, save relative position to player
+			if (stateComp.relatePosX == 0.0f) {
+				stateComp.relatePosX = tfm.pos.x - playerPos.x; 
+			}
+
+			tfm.pos.x = playerPos.x + stateComp.relatePosX;
+			tfm.pos.y = playerPos.y + 65 - fruitSize.size.y / 2;
+
+			tfm.vel.y = 0.f;
+		}
 
 		// if fruit is out of bounds, remove it
 		if (tfm.pos.y > _worldBounds.height) {

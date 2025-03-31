@@ -80,6 +80,7 @@ struct CBoundingBox : public Component
 
 struct CState : public Component {
     std::string state{"none"};
+	float relatePosX{ 0.f };
 
     CState() = default;
     CState(const std::string& s) : state(s){}
