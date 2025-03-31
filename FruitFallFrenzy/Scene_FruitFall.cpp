@@ -497,9 +497,17 @@ void Scene_FruitFall::checkFruitsCollision()
 {
 
 	for (auto e : _entityManager.getEntities("fruit")) {
-		auto overlap = Physics::getOverlap(_player, e);
-		if (overlap.x > 0 && overlap.y > 0) {
 
+		// Deault, fruit is falling
+		if (!e->hasComponent<CState>()) {
+			e->addComponent<CState>().state = "falling";
+		}
+
+		auto& fruitState = e->getComponent<CState>().state;
+
+		auto overlap = Physics::getOverlap(_player, e);
+		if (fruitState != "caught" && overlap.x > 0 && overlap.y > 0) {
+            fruitState = "caught";
 			SoundPlayer::getInstance().play("catch2");
 
 			if (e->getComponent<CAnimation>().animation.getName() == "apple")
@@ -526,9 +534,6 @@ void Scene_FruitFall::checkFruitsCollision()
 			{
 				_config.currentScore += 100;
 			}
-
-			
-			
 		}
 	}
 
@@ -903,7 +908,14 @@ void Scene_FruitFall::sRender()
 
 	// Draw Entities except basket and powerups
 	for (auto e : _entityManager.getEntities()) {
-		if (e == _player || e == _playerFront || e == _playerBack || _config.magnetEntity || _config.slowdownEntity) continue;
+		if (e == _player || e == _playerFront || e == _playerBack ) continue;
+
+		if (_config.magnetEntity || _config.slowdownEntity) {
+			if (e == _config.magnetEntity || e == _config.slowdownEntity) {
+				continue;
+			}
+		}
+
 
 		if (e->getComponent<CAnimation>().has) {
 			auto& anim = e->getComponent<CAnimation>().animation;
@@ -952,12 +964,17 @@ void Scene_FruitFall::sRender()
 		_game->window().draw(anim.getSprite());
 	}
 
+	// Draw PowerUps (magnet, slowdown attached in front of basket)
 	if (_config.magnetEntity || _config.slowdownEntity) {
 		for (auto e : _entityManager.getEntities()) {
-			auto& anim = e->getComponent<CAnimation>().animation;
-			auto& tfm = e->getComponent<CTransform>();
-			anim.getSprite().setPosition(tfm.pos);
-			_game->window().draw(anim.getSprite());
+			if (e == _config.magnetEntity || e == _config.slowdownEntity) {
+				if (e->getComponent<CAnimation>().has) {
+					auto& anim = e->getComponent<CAnimation>().animation;
+					auto& tfm = e->getComponent<CTransform>();
+					anim.getSprite().setPosition(tfm.pos);
+					_game->window().draw(anim.getSprite());
+				}
+			}
 		}
 	}
 
@@ -991,6 +1008,4 @@ void Scene_FruitFall::sRender()
 		_game->window().draw(endScreen);
 
 	}
-
-
 }
