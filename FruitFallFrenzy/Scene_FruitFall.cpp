@@ -882,7 +882,7 @@ void Scene_FruitFall::sRender()
 		}
 	}
 
-	// ☁️ Clouds
+	// Draw Clouds
 	for (int i = 0; i < 5; ++i) {
 		_game->window().draw(_config._clouds[i]);
 	}
@@ -901,9 +901,9 @@ void Scene_FruitFall::sRender()
 		_game->window().draw(anim.getSprite());
 	}
 
-	// Draw Entities except basket
+	// Draw Entities except basket and powerups
 	for (auto e : _entityManager.getEntities()) {
-		if (e == _player || e == _playerFront || e == _playerBack) continue;
+		if (e == _player || e == _playerFront || e == _playerBack || _config.magnetEntity || _config.slowdownEntity) continue;
 
 		if (e->getComponent<CAnimation>().has) {
 			auto& anim = e->getComponent<CAnimation>().animation;
@@ -952,6 +952,16 @@ void Scene_FruitFall::sRender()
 		_game->window().draw(anim.getSprite());
 	}
 
+	if (_config.magnetEntity || _config.slowdownEntity) {
+		for (auto e : _entityManager.getEntities()) {
+			auto& anim = e->getComponent<CAnimation>().animation;
+			auto& tfm = e->getComponent<CTransform>();
+			anim.getSprite().setPosition(tfm.pos);
+			_game->window().draw(anim.getSprite());
+		}
+	}
+
+
 	//if (_showGameOverScreen)
 	//{
 	//	for (auto e : _entityManager.getEntities("winbkg")) {
@@ -966,6 +976,8 @@ void Scene_FruitFall::sRender()
 	//	gameOver.setFillColor(sf::Color::Black);
 	//	_game->window().draw(gameOver);
 	//}
+
+
 
 	if (_showGameOverScreen) {
 		sf::RectangleShape overlay(sf::Vector2f(_worldBounds.width, _worldBounds.height));
