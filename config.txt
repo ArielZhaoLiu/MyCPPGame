@@ -75,3 +75,8 @@ Animation       time      	FruitTree    5        yes
 
 Animation       angel      	Baskets      7        yes
 Animation       devil      	Baskets      7        yes
+Animation       stand_front     Baskets      10       yes
+Animation       stand_back      Baskets      10       yes
+Animation       left_front      Baskets      10       no
+Animation       left_back       Baskets      10       no
+

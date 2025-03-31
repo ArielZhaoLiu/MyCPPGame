@@ -47,6 +47,9 @@ struct LevelConfig {
 class Scene_FruitFall : public Scene {
 
 	sPtrEntt                            _player{ nullptr };
+	sPtrEntt                            _playerFront{ nullptr };
+	sPtrEntt                            _playerBack{ nullptr };
+
 	sf::View                            _worldView;  // camera
 	sf::FloatRect                       _worldBounds;
 	bool                                _drawTextures{ true };

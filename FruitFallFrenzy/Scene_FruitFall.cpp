@@ -137,10 +137,11 @@ void Scene_FruitFall::loadLevel(const std::string& path)
 
 void Scene_FruitFall::spawnPlayer(sf::Vector2f pos)
 {
+	// player logic
 	_player = _entityManager.addEntity("player");
 	_player->addComponent<CTransform>(pos);
 
-	auto bb = _player->addComponent<CAnimation>(Assets::getInstance().getAnimation("basket")).animation.getBB();
+	auto bb = Assets::getInstance().getAnimation("stand_front").getBB();
 
 	float scale = 0.5f;
 	bb.x = scale * bb.x;
@@ -149,6 +150,15 @@ void Scene_FruitFall::spawnPlayer(sf::Vector2f pos)
 	_player->addComponent<CBoundingBox>(bb);
 	_player->addComponent<CInput>();
 
+	// visual: player front
+	_playerFront = _entityManager.addEntity("playerFront");
+	_playerFront->addComponent<CTransform>(pos);
+	_playerFront->addComponent<CAnimation>(Assets::getInstance().getAnimation("stand_front"));
+
+	// visual: player back
+	_playerBack = _entityManager.addEntity("playerBack");
+	_playerBack->addComponent<CTransform>(pos);
+	_playerBack->addComponent<CAnimation>(Assets::getInstance().getAnimation("stand_back"));
 }
 
 
@@ -351,15 +361,28 @@ void Scene_FruitFall::playerMovement()
 
 	// player movement
 	auto& pInput = _player->getComponent<CInput>();
+
 	auto& transform = _player->getComponent<CTransform>();
+	auto& transformFront = _playerFront->getComponent<CTransform>();
+	auto& transformBack = _playerBack->getComponent<CTransform>();
+
 
 	sf::Vector2f pv{ 0.f, 0.f };
-
 		
 	if (pInput.left && !pInput.right)
 	{
 		transform.pos.x -=40;
-		_player->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("basket");
+		transformFront.pos.x -= 40;
+		transformBack.pos.x -= 40;
+
+
+		if (_playerFront && _playerFront->hasComponent<CAnimation>()) {
+			_playerFront->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("left_front");
+		}
+		if (_playerBack && _playerBack->hasComponent<CAnimation>()) {
+			_playerBack->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("left_back");
+		}
+		
 		SoundPlayer::getInstance().play("move");
 		pInput.left = false;
 	}
@@ -367,15 +390,34 @@ void Scene_FruitFall::playerMovement()
 	else if (pInput.right && !pInput.left)
 	{
 		transform.pos.x +=40; 
-		_player->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("basket");
-		_player->getComponent<CAnimation>().animation._sprite.setScale(-1.f, 1.f);
+		transformFront.pos.x += 40;
+		transformBack.pos.x += 40;
+
+		if (_playerFront && _playerFront->hasComponent<CAnimation>()) {
+			_playerFront->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("left_front");
+			_playerFront->getComponent<CAnimation>().animation._sprite.setScale(-1.f, 1.f);
+		}
+		if (_playerBack && _playerBack->hasComponent<CAnimation>()) {
+			_playerBack->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("left_back");
+			_playerBack->getComponent<CAnimation>().animation._sprite.setScale(-1.f, 1.f);
+		}
+
 	
 		SoundPlayer::getInstance().play("move");
 		pInput.right = false;
+
 	}
+	/*else
+	{
+		_player->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("stand_front");
+
+	}*/
 	
 	// normalize
 	_player->getComponent<CTransform>().vel = normalize(pv);
+	_playerFront->getComponent<CTransform>().vel = normalize(pv);
+	_playerBack->getComponent<CTransform>().vel = normalize(pv);
+
 
 	annimatePlayer();
 	
@@ -389,16 +431,15 @@ void Scene_FruitFall::annimatePlayer()
 		return;
 		*/
 
-	auto& pInput = _player->getComponent<CInput>();
-	if (pInput.up)
-		_player->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("basket");
-	else if (pInput.down)
-		_player->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("basket");
+	//auto& pInput = _player->getComponent<CInput>();
+	//if (pInput.up)
+	//	_player->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("basket");
+	//else if (pInput.down)
+	//	_player->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("basket");
 	//else if (pInput.left)
 	//	_player->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("left");
 	//else if (pInput.right)
 	//	_player->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("right");
-
 		
 }
 
@@ -429,7 +470,11 @@ void Scene_FruitFall::adjustPlayerPosition(sf::Time dt)
 	player_pos.x = std::min(player_pos.x, right - halfSize.x - 240);
 	player_pos.y = std::max(player_pos.y, top + halfSize.y);
 	player_pos.y = std::min(player_pos.y, bot - halfSize.y);
-	
+
+	// adjust front and back sprites
+	auto& playerTfmFront = _playerFront->getComponent<CTransform>().pos = player_pos;
+	auto& playerTfmBack = _playerBack->getComponent<CTransform>().pos = player_pos;
+
 }
 
 void Scene_FruitFall::adjustFruitPosition(sf::Time dt)
@@ -483,7 +528,7 @@ void Scene_FruitFall::checkFruitsCollision()
 			}
 
 			
-			e->destroy();
+			
 		}
 	}
 
@@ -663,6 +708,13 @@ void Scene_FruitFall::sUpdate(sf::Time dt)
 {
 	if (_isPaused)
 		return;
+
+
+	if (_player && _playerBack && _playerFront) {
+		auto pos = _player->getComponent<CTransform>().pos;
+		_playerBack->getComponent<CTransform>().pos = pos;
+		_playerFront->getComponent<CTransform>().pos = pos;
+	}
 	
 	//auto e = _entityManager.getEntities();  // check how many entities are there
 	//std::cout << e.size() << "\n";
@@ -800,8 +852,6 @@ void Scene_FruitFall::sUpdate(sf::Time dt)
 		}
 	}
 
-
-
 	_entityManager.update();
 
 	sAnimation(dt);
@@ -812,6 +862,7 @@ void Scene_FruitFall::sUpdate(sf::Time dt)
 	updateMagnetEffect(dt);
 	adjustPlayerPosition(dt);
 	adjustFruitPosition(dt);
+
 
 }
 
@@ -842,17 +893,17 @@ void Scene_FruitFall::sRender()
 	frontBg.setTexture(Assets::getInstance().getTexture("GameFrontBackground"));
 	_game->window().draw(frontBg);
 
-	// Draw basket
-	if (_player->getComponent<CAnimation>().has) {
-		auto& anim = _player->getComponent<CAnimation>().animation;
-		auto& tfm = _player->getComponent<CTransform>();
+	// Draw Back basket
+	if (_playerBack && _playerBack->getComponent<CAnimation>().has) {
+		auto& anim = _playerBack->getComponent<CAnimation>().animation;
+		auto& tfm = _playerBack->getComponent<CTransform>();
 		anim.getSprite().setPosition(tfm.pos);
 		_game->window().draw(anim.getSprite());
 	}
 
 	// Draw Entities except basket
 	for (auto e : _entityManager.getEntities()) {
-		if (e == _player) continue;
+		if (e == _player || e == _playerFront || e == _playerBack) continue;
 
 		if (e->getComponent<CAnimation>().has) {
 			auto& anim = e->getComponent<CAnimation>().animation;
@@ -893,7 +944,13 @@ void Scene_FruitFall::sRender()
 
 	}
 
-
+	// Draw Front basket
+	if (_playerFront && _playerFront->getComponent<CAnimation>().has) {
+		auto& anim = _playerFront->getComponent<CAnimation>().animation;
+		auto& tfm = _playerFront->getComponent<CTransform>();
+		anim.getSprite().setPosition(tfm.pos);
+		_game->window().draw(anim.getSprite());
+	}
 
 	//if (_showGameOverScreen)
 	//{
