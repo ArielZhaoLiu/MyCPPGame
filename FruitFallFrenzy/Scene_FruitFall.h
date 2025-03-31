@@ -41,6 +41,8 @@ struct LevelConfig {
 
 	float					_cloudFloatTime = 0.f;
 
+	std::vector<std::shared_ptr<Entity>> caughtFruits;
+
 };
 
 

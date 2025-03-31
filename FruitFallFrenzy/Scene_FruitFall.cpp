@@ -491,12 +491,17 @@ void Scene_FruitFall::adjustFruitPosition(sf::Time dt)
 			// First time caught, save relative position to player
 			if (stateComp.relatePosX == 0.0f) {
 				stateComp.relatePosX = tfm.pos.x - playerPos.x; 
+				_config.caughtFruits.push_back(e);
 			}
 
 			tfm.pos.x = playerPos.x + stateComp.relatePosX;
 			tfm.pos.y = playerPos.y + 65 - fruitSize.size.y / 2;
+			//tfm.vel.y = 0.f;
 
-			tfm.vel.y = 0.f;
+			if (_config.caughtFruits.size() > 5) {
+				_config.caughtFruits.front()->destroy();
+				_config.caughtFruits.erase(_config.caughtFruits.begin());
+			}
 		}
 
 		// if fruit is out of bounds, remove it
