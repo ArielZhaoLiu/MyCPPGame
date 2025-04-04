@@ -17,7 +17,6 @@ struct LevelConfig {
 	float					spawnFruitInterval{ 1.f };		// time between fruit spawns
 	float					spawnBombsInterval{ 3.f };		// time between bombs spawns
 	float					spawnPowerUpInterval{ 5.f };	// time between power ups spawns
-	//int						gamePhase = 1;        // （1 = only fruits, 2 = adding bombs, 3 = adding power ups, 4 = more speed）
 	float					gameTime = 0.f;					// game total time
 	float					countdownTime{ 100.f };			// 60s countdown
 	int						currentScore{ 0 };
@@ -26,8 +25,8 @@ struct LevelConfig {
 	std::shared_ptr<Entity>	magnetEntity = nullptr ;		// magnet power up entity pointer
 	float					magnetTimer = 0.0f;				// Magnet effect timer
 
-	std::shared_ptr<Entity>	slowdownEntity = nullptr;		// magnet power up entity pointer
-	float					slowdownTimer = 0.0f;			// Magnet effect timer
+	std::shared_ptr<Entity>	slowdownEntity = nullptr;		// slowdown power up entity pointer
+	float					slowdownTimer = 0.0f;			// slowdown effect timer
 
 
 	std::vector<std::string> fruitTypes = { "mango", "apple", "banana", "watermelon", "cherry", "strawbury"};
@@ -41,7 +40,9 @@ struct LevelConfig {
 
 	float					_cloudFloatTime = 0.f;
 
-	std::vector<std::shared_ptr<Entity>> caughtFruits;
+	std::vector<std::shared_ptr<Entity>>			caughtFruits;
+	std::map<std::string, int>						fruitCollected;
+
 
 };
 
@@ -62,6 +63,7 @@ class Scene_FruitFall : public Scene {
 	float								_gameOverTimer{0.f};
 	float								_overlayAlpha{ 0.f };
 	float								_victoryAlpha{ 0.f };
+	
 
 	//systems
 	void 				    sAnimation(sf::Time dt);
@@ -90,6 +92,8 @@ class Scene_FruitFall : public Scene {
 	void                    init(const std::string& path);
 	void                    loadLevel(const std::string& path);
 
+	void					saveHighestScore();
+	void					loadHighestScore();
 
 public:
 	 Scene_FruitFall(GameEngine* gameEngine, const std::string& levelPath);

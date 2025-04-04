@@ -23,6 +23,7 @@ void Scene_FruitFall::init(const std::string& levelPath)
 {
 	loadLevel(levelPath);
 	registerActions();
+	loadHighestScore();
 
 	_worldView = _game->window().getDefaultView();
 
@@ -34,7 +35,7 @@ void Scene_FruitFall::init(const std::string& levelPath)
 	spawnIcons();
 
 	MusicPlayer::getInstance().play("gameTheme");
-	MusicPlayer::getInstance().setVolume(12);
+	MusicPlayer::getInstance().setVolume(10);
 
 
 	// for clouds
@@ -135,6 +136,30 @@ void Scene_FruitFall::loadLevel(const std::string& path)
 	config.close();
 }
 
+void Scene_FruitFall::saveHighestScore()
+{
+	std::ofstream file("highscore.txt");
+	if (file.is_open()) {
+		file << _config.highestScore;
+		file.close();
+	}
+	else {
+		std::cout << "Unable to open file for writing: highscore.txt\n";
+	}
+}
+
+void Scene_FruitFall::loadHighestScore()
+{
+	std::ifstream file("highscore.txt");
+	if (file.is_open()) {
+		file >> _config.highestScore;
+		file.close();
+	}
+	else {
+		std::cout << "Unable to open file for reading: highscore.txt\n";
+	}
+}
+
 void Scene_FruitFall::spawnPlayer(sf::Vector2f pos)
 {
 	// player logic
@@ -143,9 +168,8 @@ void Scene_FruitFall::spawnPlayer(sf::Vector2f pos)
 
 	auto bb = Assets::getInstance().getAnimation("stand_front").getBB();
 
-	float scale = 0.5f;
-	bb.x = scale * bb.x;
-	bb.y = scale * bb.y + 30.f;
+	bb.x = 0.4 * bb.x;
+	bb.y = 0.1 * bb.y;
 
 	_player->addComponent<CBoundingBox>(bb);
 	_player->addComponent<CInput>();
@@ -347,7 +371,18 @@ void Scene_FruitFall::sCollisions()
 
 
 void Scene_FruitFall::onEnd()
-{
+{// save highest score
+	if (_config.currentScore > _config.highestScore) {
+		_config.highestScore = _config.currentScore;
+		saveHighestScore();
+	}
+	//MusicPlayer::getInstance().play("gameOver");
+	MusicPlayer::getInstance().setVolume(10);
+
+	// remove all entities
+	for (auto e : _entityManager.getEntities()) {
+		e->destroy();
+	}
 }
 
 
@@ -535,26 +570,32 @@ void Scene_FruitFall::checkFruitsCollision()
 			if (e->getComponent<CAnimation>().animation.getName() == "apple")
 			{
 				_config.currentScore += 10;
+				_config.fruitCollected["apple"]++;
 			}
 			else if (e->getComponent<CAnimation>().animation.getName() == "banana")
 			{
 				_config.currentScore += 10;
+				_config.fruitCollected["banana"]++;
 			}
 			else if (e->getComponent<CAnimation>().animation.getName() == "cherry")
 			{
 				_config.currentScore += 30;
+				_config.fruitCollected["cherry"]++;
 			}
 			else if (e->getComponent<CAnimation>().animation.getName() == "mango")
 			{
 				_config.currentScore += 20;
+				_config.fruitCollected["mango"]++;
 			}
 			else if (e->getComponent<CAnimation>().animation.getName() == "strawbury")
 			{
 				_config.currentScore += 30;
+				_config.fruitCollected["strawbury"]++;
 			}
 			else if (e->getComponent<CAnimation>().animation.getName() == "watermelon")
 			{
 				_config.currentScore += 100;
+				_config.fruitCollected["watermelon"]++;
 			}
 		}
 	}
@@ -608,6 +649,7 @@ void Scene_FruitFall::checkPowerUpsCollision()
 				}
 
 				SoundPlayer::getInstance().play("magnet");
+				e->destroy();
 
 			}
 			else if (e->getComponent<CAnimation>().animation.getName() == "slowdown")
@@ -621,6 +663,8 @@ void Scene_FruitFall::checkPowerUpsCollision()
 					_config.slowdownEntity = e;
 					_config.slowdownTimer = 5.f;
 				}
+
+				e->destroy();
 			
 			}
 			else if (e->getComponent<CAnimation>().animation.getName() == "pineapple")
@@ -743,8 +787,8 @@ void Scene_FruitFall::sUpdate(sf::Time dt)
 		_playerFront->getComponent<CTransform>().pos = pos;
 	}
 	
-	//auto e = _entityManager.getEntities();  // check how many entities are there
-	//std::cout << e.size() << "\n";
+	auto e = _entityManager.getEntities();  // check how many entities are there
+	std::cout << e.size() << "\n";
 
 	_entityManager.update();
 	SoundPlayer::getInstance().removeStoppedSounds();
@@ -877,6 +921,12 @@ void Scene_FruitFall::sUpdate(sf::Time dt)
 			_victoryAlpha += dt.asSeconds() * 200;
 			if (_victoryAlpha > 255) _victoryAlpha = 255;
 		}
+
+		// highest score
+		if (_config.currentScore > _config.highestScore) {
+			_config.highestScore = _config.currentScore;
+			saveHighestScore();
+		}
 	}
 
 	_entityManager.update();
@@ -970,11 +1020,17 @@ void Scene_FruitFall::sRender()
 
 
 		sf::Text currentScore("Current Score: " + std::to_string(_config.currentScore), Assets::getInstance().getFont("main"), 30);
-		centerOrigin(text);
+		//centerOrigin(currentScore);
 		currentScore.setPosition(20.f, 180.f);
 		currentScore.setFillColor(sf::Color::Black);
 
+		sf::Text bestScore("Highest Score: " + std::to_string(_config.highestScore), Assets::getInstance().getFont("main"), 30);
+		//centerOrigin(text);
+		bestScore.setPosition(20.f, 250.f);
+		bestScore.setFillColor(sf::Color::Black);
+
 		_game->window().draw(currentScore);
+		_game->window().draw(bestScore);
 
 	}
 
@@ -1028,6 +1084,43 @@ void Scene_FruitFall::sRender()
 		endScreen.setTexture(Assets::getInstance().getTexture("WinBackground"));
 		endScreen.setColor(sf::Color(255, 255, 255, _victoryAlpha));
 		_game->window().draw(endScreen);
+
+		if (_victoryAlpha >= 255) {
+			auto font = Assets::getInstance().getFont("score");
+			auto textColor = sf::Color(22, 22, 22);
+
+
+			sf::Text currentScore(std::to_string(_config.currentScore), font, 34);
+			currentScore.setPosition(306, 236);
+			currentScore.setFillColor(textColor);
+			_game->window().draw(currentScore);
+
+
+			sf::Text bestScore(std::to_string(_config.highestScore), font, 34);
+			bestScore.setPosition(306, 330);
+			bestScore.setFillColor(textColor);
+			_game->window().draw(bestScore);
+
+
+			std::vector<std::string> fruitNames = { "apple", "banana", "watermelon", "strawbury", "mango", "cherry" };
+
+			int startX = 206;  // First row
+			int startY = 500;  // 
+			int spacingX = 180;
+			int spacingY = 124;  // spacing between the 2 rows
+
+			for (size_t i = 0; i < fruitNames.size(); ++i) {
+				int col = i % 3;
+				int row = i / 3;
+
+				sf::Text fruitText(std::to_string(_config.fruitCollected[fruitNames[i]]), font, 34);
+				fruitText.setPosition(startX + col * spacingX, startY + row * spacingY);
+				fruitText.setFillColor(textColor);
+				_game->window().draw(fruitText);
+			}
+		}
+
+		
 
 	}
 }

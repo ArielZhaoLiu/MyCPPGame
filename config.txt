@@ -7,6 +7,7 @@ Font    main            ../assets/fonts/Sansation.ttf
 Font    Arcade          ../assets/fonts/arcadeclassic.regular.ttf
 Font    Frijole         ../assets/fonts/Frijole-Regular.ttf
 Font    YaLike          ../assets/fonts/LoveYaLikeASister-Regular.ttf
+Font    score           ../assets/fonts/FZCuYuan-M03S.ttf
 
 
 Music gameTheme         ../assets/Music/game_theme.wav
@@ -16,7 +17,7 @@ Music menuTheme      ../assets/Music/menu_theme2.mp3
 # Textures
 Texture Background      ../assets/Textures/bg.jpg
 Texture GameFrontBackground      ../assets/Textures/game_bg_front.png
-Texture WinBackground   ../assets/Textures/win_bg.jpg
+Texture WinBackground   ../assets/Textures/gameover_bg.jpg
 Texture Title           ../assets/Textures/FroggerTitle.png
 Texture FruitTree       ../assets/Textures/FruitTree.png
 Texture Entities    	../assets/Textures/Entities.png
