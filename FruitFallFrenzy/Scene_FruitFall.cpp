@@ -763,7 +763,6 @@ void Scene_FruitFall::sMovement(sf::Time dt)
 {
 	playerMovement();
 
-
 	// move all the objects that have a transform component
 	for (auto e : _entityManager.getEntities()) {
 		if (e->hasComponent<CTransform>()) {
@@ -779,7 +778,6 @@ void Scene_FruitFall::sUpdate(sf::Time dt)
 {
 	if (_isPaused)
 		return;
-
 
 	if (_player && _playerBack && _playerFront) {
 		auto pos = _player->getComponent<CTransform>().pos;
@@ -799,7 +797,6 @@ void Scene_FruitFall::sUpdate(sf::Time dt)
 
 
 	_config.gameTime += dt.asSeconds(); // game total time
-
 	_config.countdownTime -= dt.asSeconds(); // countdown time decrease
 
 
@@ -895,53 +892,63 @@ void Scene_FruitFall::sUpdate(sf::Time dt)
 	}
 
 	_config._cloudFloatTime += dt.asSeconds();
-
-
 	
 	// Game Over
 	if (_config.countdownTime <= 0.f) {
-		
-		//_isPaused = true;
+		_isGameOver = true;
 		_config.countdownTime = 0;
-		_showGameOverScreen = true;
-
-		_gameOverTimer += dt.asSeconds();
-
-		auto vel = _config.fruitSpeed * uVecBearing(-90);
-
-		for (auto e : _entityManager.getEntities("fruit"))
-		{
-			e->getComponent<CTransform>().vel = vel; // fruits float up
-		}
-
-		_overlayAlpha += dt.asSeconds() * 100;
-		if (_overlayAlpha > 255) _overlayAlpha = 255;
-
-		if (_gameOverTimer >= 2.f) {
-			_victoryAlpha += dt.asSeconds() * 200;
-			if (_victoryAlpha > 255) _victoryAlpha = 255;
-		}
-
-		// highest score
-		if (_config.currentScore > _config.highestScore) {
-			_config.highestScore = _config.currentScore;
-			saveHighestScore();
-		}
 	}
-
+	
 	_entityManager.update();
-
 	sAnimation(dt);
 	sMovement(dt);
-
 	sCollisions();
 	updateSlowdownEffect(dt);
 	updateMagnetEffect(dt);
 	adjustPlayerPosition(dt);
 	adjustFruitPosition(dt);
 
+	if (_isGameOver) {
+		updateGameOver(dt);
+		return;
+	}
 
 }
+
+void Scene_FruitFall::updateGameOver(sf::Time dt)
+{
+	_showGameOverScreen = true;
+	_gameOverTimer += dt.asSeconds();
+
+	// fruits float up
+	auto vel = _config.fruitSpeed * uVecBearing(-90);
+	for (auto e : _entityManager.getEntities("fruit"))
+	{
+		e->getComponent<CTransform>().vel = vel;
+	}
+
+	_overlayAlpha += dt.asSeconds() * 100;
+	if (_overlayAlpha > 255) _overlayAlpha = 255;
+
+	if (_gameOverTimer >= 2.f) {
+		_victoryAlpha += dt.asSeconds() * 200;
+		if (_victoryAlpha > 255) _victoryAlpha = 255;
+	}
+
+	// highest score
+	if (_config.currentScore > _config.highestScore) {
+		_config.highestScore = _config.currentScore;
+		saveHighestScore();
+	}
+
+	// remove all entities 
+	if (_gameOverTimer >= 5.f) {
+		for (auto e : _entityManager.getEntities()) {
+			e->destroy();
+		}
+	}
+}
+
 
 
 void Scene_FruitFall::update(sf::Time dt)
@@ -1056,29 +1063,10 @@ void Scene_FruitFall::sRender()
 		}
 	}
 
-
-	//if (_showGameOverScreen)
-	//{
-	//	for (auto e : _entityManager.getEntities("winbkg")) {
-	//		if (e->getComponent<CSprite>().has) {
-	//			auto& sprite = e->getComponent<CSprite>().sprite;
-	//			_game->window().draw(sprite);
-	//		}
-	//	}
-	//	sf::Text gameOver("Game Over", Assets::getInstance().getFont("main"), 50);
-	//	centerOrigin(gameOver);
-	//	gameOver.setPosition(_worldBounds.width / 2.f, _worldBounds.height / 2.f);
-	//	gameOver.setFillColor(sf::Color::Black);
-	//	_game->window().draw(gameOver);
-	//}
-
-
-
 	if (_showGameOverScreen) {
 		sf::RectangleShape overlay(sf::Vector2f(_worldBounds.width, _worldBounds.height));
 		overlay.setFillColor(sf::Color(255, 240, 200, _overlayAlpha));
 		_game->window().draw(overlay);
-
 
 		sf::Sprite endScreen;
 		endScreen.setTexture(Assets::getInstance().getTexture("WinBackground"));
@@ -1089,7 +1077,6 @@ void Scene_FruitFall::sRender()
 			auto font = Assets::getInstance().getFont("score");
 			auto textColor = sf::Color(22, 22, 22);
 
-
 			sf::Text currentScore(std::to_string(_config.currentScore), font, 34);
 			currentScore.setPosition(306, 236);
 			currentScore.setFillColor(textColor);
@@ -1097,7 +1084,7 @@ void Scene_FruitFall::sRender()
 
 
 			sf::Text bestScore(std::to_string(_config.highestScore), font, 34);
-			bestScore.setPosition(306, 330);
+			bestScore.setPosition(350, 310);
 			bestScore.setFillColor(textColor);
 			_game->window().draw(bestScore);
 
@@ -1121,6 +1108,5 @@ void Scene_FruitFall::sRender()
 		}
 
 		
-
 	}
 }

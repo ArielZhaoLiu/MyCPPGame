@@ -63,7 +63,6 @@ class Scene_FruitFall : public Scene {
 	float								_gameOverTimer{0.f};
 	float								_overlayAlpha{ 0.f };
 	float								_victoryAlpha{ 0.f };
-	
 
 	//systems
 	void 				    sAnimation(sf::Time dt);
@@ -89,11 +88,15 @@ class Scene_FruitFall : public Scene {
 	void                    checkPowerUpsCollision();
 	void                    updateSlowdownEffect(sf::Time dt);
 	void                    updateMagnetEffect(sf::Time dt);
+	void					updateGameOver(sf::Time dt);
+
 	void                    init(const std::string& path);
 	void                    loadLevel(const std::string& path);
 
 	void					saveHighestScore();
 	void					loadHighestScore();
+
+
 
 public:
 	 Scene_FruitFall(GameEngine* gameEngine, const std::string& levelPath);

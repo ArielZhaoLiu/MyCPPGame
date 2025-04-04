@@ -20,6 +20,7 @@ protected:
 	EntityManager	_entityManager;
 	CommandMap		_commands;
 	bool			_isPaused{false};
+	bool			_isGameOver{ false };
 	bool			_hasEnded{false};
 	size_t			_currentFrame{ 0 };
 
