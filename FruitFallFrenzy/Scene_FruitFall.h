@@ -96,6 +96,8 @@ class Scene_FruitFall : public Scene {
 	void					saveHighestScore();
 	void					loadHighestScore();
 
+	void 					createScorePopup(sf::Vector2f pos, const std::string& text);
+
 
 
 public:

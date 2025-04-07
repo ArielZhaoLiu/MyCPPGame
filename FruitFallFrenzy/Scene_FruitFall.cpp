@@ -160,6 +160,19 @@ void Scene_FruitFall::loadHighestScore()
 	}
 }
 
+void Scene_FruitFall::createScorePopup(sf::Vector2f pos, const std::string& text)
+{
+	auto popup = _entityManager.addEntity("scorePopup");
+	popup->addComponent<CTransform>(pos);
+	popup->addComponent<CScorePopup>();
+
+	auto& popupComp = popup->getComponent<CScorePopup>();
+	popupComp.text = text;
+	popupComp.velocity = sf::Vector2f(0.f, -50.f);
+	popupComp.lifetime = 1.f;
+	popupComp.maxLifetime = 1.f;
+}
+
 void Scene_FruitFall::spawnPlayer(sf::Vector2f pos)
 {
 	// player logic
@@ -569,33 +582,47 @@ void Scene_FruitFall::checkFruitsCollision()
 
 			if (e->getComponent<CAnimation>().animation.getName() == "apple")
 			{
-				_config.currentScore += 10;
+				_config.currentScore += 2;
 				_config.fruitCollected["apple"]++;
+
+				createScorePopup(e->getComponent<CTransform>().pos, "+2");
 			}
 			else if (e->getComponent<CAnimation>().animation.getName() == "banana")
 			{
-				_config.currentScore += 10;
+				_config.currentScore += 2;
 				_config.fruitCollected["banana"]++;
+
+				createScorePopup(e->getComponent<CTransform>().pos, "+2");
+
 			}
 			else if (e->getComponent<CAnimation>().animation.getName() == "cherry")
 			{
-				_config.currentScore += 30;
+				_config.currentScore += 6;
 				_config.fruitCollected["cherry"]++;
+
+				createScorePopup(e->getComponent<CTransform>().pos, "+6");
+
 			}
 			else if (e->getComponent<CAnimation>().animation.getName() == "mango")
 			{
-				_config.currentScore += 20;
+				_config.currentScore += 4;
 				_config.fruitCollected["mango"]++;
+
+				createScorePopup(e->getComponent<CTransform>().pos, "+4");
 			}
 			else if (e->getComponent<CAnimation>().animation.getName() == "strawbury")
 			{
-				_config.currentScore += 30;
+				_config.currentScore += 6;
 				_config.fruitCollected["strawbury"]++;
+
+				createScorePopup(e->getComponent<CTransform>().pos, "+6");
 			}
 			else if (e->getComponent<CAnimation>().animation.getName() == "watermelon")
 			{
-				_config.currentScore += 100;
+				_config.currentScore += 20;
 				_config.fruitCollected["watermelon"]++;
+
+				createScorePopup(e->getComponent<CTransform>().pos, "+20");
 			}
 		}
 	}
@@ -610,7 +637,7 @@ void Scene_FruitFall::checkBombsCollision()
 
 			// check first time explosion
 			if (!e->hasComponent<CAnimation>() || !e->getComponent<CAnimation>().hasExploded) {
-				_config.currentScore -= 200;
+				_config.currentScore -= 40;
 				_config.countdownTime -= 30;
 
 				SoundPlayer::getInstance().play("explosion");
@@ -892,6 +919,20 @@ void Scene_FruitFall::sUpdate(sf::Time dt)
 	}
 
 	_config._cloudFloatTime += dt.asSeconds();
+
+
+	// For popup scores
+	for (auto e : _entityManager.getEntities("scorePopup")) {
+		auto& tfm = e->getComponent<CTransform>();
+		auto& popup = e->getComponent<CScorePopup>();
+
+		tfm.pos += popup.velocity * dt.asSeconds();
+
+		popup.lifetime -= dt.asSeconds();
+		if (popup.lifetime <= 0.f) {
+			e->destroy();
+		}
+	}
 	
 	// Game Over
 	if (_config.countdownTime <= 0.f) {
@@ -1026,12 +1067,12 @@ void Scene_FruitFall::sRender()
 		_game->window().draw(text);
 
 
-		sf::Text currentScore("Current Score: " + std::to_string(_config.currentScore), Assets::getInstance().getFont("main"), 30);
+		sf::Text currentScore("Current Score: " + std::to_string(_config.currentScore), Assets::getInstance().getFont("score"), 30);
 		//centerOrigin(currentScore);
 		currentScore.setPosition(20.f, 180.f);
 		currentScore.setFillColor(sf::Color::Black);
 
-		sf::Text bestScore("Highest Score: " + std::to_string(_config.highestScore), Assets::getInstance().getFont("main"), 30);
+		sf::Text bestScore("Highest Score: " + std::to_string(_config.highestScore), Assets::getInstance().getFont("score"), 30);
 		//centerOrigin(text);
 		bestScore.setPosition(20.f, 250.f);
 		bestScore.setFillColor(sf::Color::Black);
@@ -1062,6 +1103,21 @@ void Scene_FruitFall::sRender()
 			}
 		}
 	}
+
+	// For popup scores
+	for (auto& e : _entityManager.getEntities("scorePopup")) {
+		auto& popup = e->getComponent<CScorePopup>();
+		auto& tfm = e->getComponent<CTransform>();
+
+		float alpha = popup.lifetime / popup.maxLifetime * 255.f;
+		sf::Text text(popup.text, Assets::getInstance().getFont("score"), 50);
+		text.setFillColor(sf::Color(0, 0, 0, static_cast<sf::Uint8>(alpha)));
+		text.setPosition(tfm.pos.x, tfm.pos.y - 100.f);
+
+		_game->window().draw(text);
+
+	}
+
 
 	if (_showGameOverScreen) {
 		sf::RectangleShape overlay(sf::Vector2f(_worldBounds.width, _worldBounds.height));
@@ -1106,7 +1162,5 @@ void Scene_FruitFall::sRender()
 				_game->window().draw(fruitText);
 			}
 		}
-
-		
 	}
 }

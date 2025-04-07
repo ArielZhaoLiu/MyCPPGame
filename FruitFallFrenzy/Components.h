@@ -133,6 +133,18 @@ struct CMagnetEffect : public Component
 	CMagnetEffect(float time) : duration(time){}
 };
 
+struct CScorePopup : public Component {
+	std::string text;
+	sf::Vector2f velocity;
+    float lifetime;
+    float maxLifetime;
+
+	CScorePopup() = default;
+	CScorePopup(const std::string& t, sf::Vector2f v, float lt, float mlt)
+		: text(t), velocity(v), lifetime(lt), maxLifetime(mlt) {
+	}
+};
+
 
 
 #endif //BREAKOUT_COMPONENTS_H
