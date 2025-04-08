@@ -139,10 +139,17 @@ struct CScorePopup : public Component {
     float lifetime;
     float maxLifetime;
 
+	bool isCentered{ false };
+	float scale{ 0.5f };
+	bool hasIcon{ false };
+
 	CScorePopup() = default;
 	CScorePopup(const std::string& t, sf::Vector2f v, float lt, float mlt)
 		: text(t), velocity(v), lifetime(lt), maxLifetime(mlt) {
 	}
+    CScorePopup(const std::string& t, float lt, float mlt)
+        : text(t), lifetime(lt), maxLifetime(mlt) {
+    }
 };
 
 

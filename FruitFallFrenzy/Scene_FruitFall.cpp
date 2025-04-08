@@ -173,6 +173,20 @@ void Scene_FruitFall::createScorePopup(sf::Vector2f pos, const std::string& text
 	popupComp.maxLifetime = 1.f;
 }
 
+void Scene_FruitFall::createTimeBonusPopup(const std::string& text, float lt, float mlt)
+{
+	auto popup = _entityManager.addEntity("scorePopup");
+	popup->addComponent<CScorePopup>();
+	popup->addComponent<CAnimation>(Assets::getInstance().getAnimation("time"));
+	popup->addComponent<CTransform>(sf::Vector2f(_game->window().getSize().x / 2, _game->window().getSize().y / 2 - 50.f));
+
+	auto& popupComp = popup->getComponent<CScorePopup>();
+	popupComp.text = text;
+	popupComp.velocity = sf::Vector2f(0.f, -20.f);
+	popupComp.lifetime = lt;
+	popupComp.maxLifetime = mlt;
+}
+
 void Scene_FruitFall::spawnPlayer(sf::Vector2f pos)
 {
 	// player logic
@@ -660,19 +674,21 @@ void Scene_FruitFall::checkPowerUpsCollision()
 
 			if (e->getComponent<CAnimation>().animation.getName() == "time")
 			{
-				_config.countdownTime += 5;
+				_config.countdownTime += 10;
 
 				e->destroy();
+
+				createTimeBonusPopup("+10s", 2.f, 2.f);
 			}
 			else if (e->getComponent<CAnimation>().animation.getName() == "magnet")
 			{
 				if (!_player->hasComponent<CMagnetEffect>()) {
-					_player->addComponent<CMagnetEffect>(5.f);
+					_player->addComponent<CMagnetEffect>(4.f);
 				}
 
 				if (_config.magnetEntity == nullptr) {
 					_config.magnetEntity = e;
-					_config.magnetTimer = 6.f;
+					_config.magnetTimer = 5.f;
 				}
 
 				SoundPlayer::getInstance().play("magnet");
@@ -1115,8 +1131,8 @@ void Scene_FruitFall::sRender()
 		text.setPosition(tfm.pos.x, tfm.pos.y - 100.f);
 
 		_game->window().draw(text);
-
 	}
+
 
 
 	if (_showGameOverScreen) {

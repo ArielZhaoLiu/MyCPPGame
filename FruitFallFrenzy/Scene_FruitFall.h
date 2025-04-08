@@ -97,6 +97,7 @@ class Scene_FruitFall : public Scene {
 	void					loadHighestScore();
 
 	void 					createScorePopup(sf::Vector2f pos, const std::string& text);
+	void 					createTimeBonusPopup(const std::string& text, float lt, float mlt);
 
 
 
