@@ -83,6 +83,7 @@ class Scene_FruitFall : public Scene {
 	void                    annimatePlayer();
 	void                    adjustPlayerPosition(sf::Time dt);
 	void                    adjustFruitPosition(sf::Time dt);
+	void                    checkEntitiesBound();
 	void                    checkFruitsCollision();
 	void                    checkBombsCollision();
 	void                    checkPowerUpsCollision();

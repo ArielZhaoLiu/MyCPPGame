@@ -433,9 +433,9 @@ void Scene_FruitFall::playerMovement()
 		
 	if (pInput.left && !pInput.right)
 	{
-		transform.pos.x -=40;
-		transformFront.pos.x -= 40;
-		transformBack.pos.x -= 40;
+		transform.pos.x -=10;
+		transformFront.pos.x -= 10;
+		transformBack.pos.x -= 10;
 
 
 		if (_playerFront && _playerFront->hasComponent<CAnimation>()) {
@@ -446,14 +446,14 @@ void Scene_FruitFall::playerMovement()
 		}
 		
 		SoundPlayer::getInstance().play("move");
-		pInput.left = false;
+		//pInput.left = false;
 	}
 		
 	else if (pInput.right && !pInput.left)
 	{
-		transform.pos.x +=40; 
-		transformFront.pos.x += 40;
-		transformBack.pos.x += 40;
+		transform.pos.x +=10; 
+		transformFront.pos.x += 10;
+		transformBack.pos.x += 10;
 
 		if (_playerFront && _playerFront->hasComponent<CAnimation>()) {
 			_playerFront->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("left_front");
@@ -466,7 +466,7 @@ void Scene_FruitFall::playerMovement()
 
 	
 		SoundPlayer::getInstance().play("move");
-		pInput.right = false;
+		//pInput.right = false;
 
 	}
 	/*else
@@ -565,6 +565,23 @@ void Scene_FruitFall::adjustFruitPosition(sf::Time dt)
 				_config.caughtFruits.erase(_config.caughtFruits.begin());
 			}
 		}
+
+		// if fruit is out of bounds, remove it
+		if (tfm.pos.y > _worldBounds.height) {
+			e->destroy();
+		}
+		// if fruit is out of bounds, remove it
+		if (tfm.pos.x < 0 || tfm.pos.x > _worldBounds.width) {
+			e->destroy();
+		}
+	}
+}
+
+void Scene_FruitFall::checkEntitiesBound()
+{
+	for (auto e : _entityManager.getEntities()) {
+
+		auto& tfm = e->getComponent<CTransform>();
 
 		// if fruit is out of bounds, remove it
 		if (tfm.pos.y > _worldBounds.height) {
@@ -692,7 +709,7 @@ void Scene_FruitFall::checkPowerUpsCollision()
 				}
 
 				SoundPlayer::getInstance().play("magnet");
-				e->destroy();
+				//e->destroy();
 
 			}
 			else if (e->getComponent<CAnimation>().animation.getName() == "slowdown")
@@ -700,14 +717,13 @@ void Scene_FruitFall::checkPowerUpsCollision()
 				if (!_player->hasComponent<CSlowDownEffect>()) {
 					_player->addComponent<CSlowDownEffect>(5.f, 300.f);
 					_config.fruitSpeed -= 300;
-				}		
+				}
 
 				if (_config.slowdownEntity == nullptr) {
 					_config.slowdownEntity = e;
 					_config.slowdownTimer = 5.f;
 				}
-
-				e->destroy();
+				//e->destroy();
 			
 			}
 			else if (e->getComponent<CAnimation>().animation.getName() == "pineapple")
@@ -964,6 +980,7 @@ void Scene_FruitFall::sUpdate(sf::Time dt)
 	updateMagnetEffect(dt);
 	adjustPlayerPosition(dt);
 	adjustFruitPosition(dt);
+	checkEntitiesBound();
 
 	if (_isGameOver) {
 		updateGameOver(dt);
