@@ -1082,20 +1082,6 @@ void Scene_FruitFall::sRender()
 		text.setPosition(90.f, 90.f);
 		_game->window().draw(text);
 
-
-		sf::Text currentScore("Current Score: " + std::to_string(_config.currentScore), Assets::getInstance().getFont("score"), 30);
-		//centerOrigin(currentScore);
-		currentScore.setPosition(20.f, 180.f);
-		currentScore.setFillColor(sf::Color::Black);
-
-		sf::Text bestScore("Highest Score: " + std::to_string(_config.highestScore), Assets::getInstance().getFont("score"), 30);
-		//centerOrigin(text);
-		bestScore.setPosition(20.f, 250.f);
-		bestScore.setFillColor(sf::Color::Black);
-
-		_game->window().draw(currentScore);
-		_game->window().draw(bestScore);
-
 	}
 
 	// Draw Front basket
@@ -1104,6 +1090,19 @@ void Scene_FruitFall::sRender()
 		auto& tfm = _playerFront->getComponent<CTransform>();
 		anim.getSprite().setPosition(tfm.pos);
 		_game->window().draw(anim.getSprite());
+	}
+
+	// For popup scores
+	for (auto& e : _entityManager.getEntities("scorePopup")) {
+		auto& popup = e->getComponent<CScorePopup>();
+		auto& tfm = e->getComponent<CTransform>();
+
+		float alpha = popup.lifetime / popup.maxLifetime * 255.f;
+		sf::Text text(popup.text, Assets::getInstance().getFont("score"), 50);
+		text.setFillColor(sf::Color(0, 0, 0, static_cast<sf::Uint8>(alpha)));
+		text.setPosition(tfm.pos.x, tfm.pos.y - 100.f);
+
+		_game->window().draw(text);
 	}
 
 	// Draw PowerUps (magnet, slowdown attached in front of basket)
@@ -1120,20 +1119,18 @@ void Scene_FruitFall::sRender()
 		}
 	}
 
-	// For popup scores
-	for (auto& e : _entityManager.getEntities("scorePopup")) {
-		auto& popup = e->getComponent<CScorePopup>();
-		auto& tfm = e->getComponent<CTransform>();
+	sf::Text currentScore("Current Score: " + std::to_string(_config.currentScore), Assets::getInstance().getFont("score"), 30);
+	//centerOrigin(currentScore);
+	currentScore.setPosition(20.f, 180.f);
+	currentScore.setFillColor(sf::Color::Black);
 
-		float alpha = popup.lifetime / popup.maxLifetime * 255.f;
-		sf::Text text(popup.text, Assets::getInstance().getFont("score"), 50);
-		text.setFillColor(sf::Color(0, 0, 0, static_cast<sf::Uint8>(alpha)));
-		text.setPosition(tfm.pos.x, tfm.pos.y - 100.f);
+	sf::Text bestScore("Highest Score: " + std::to_string(_config.highestScore), Assets::getInstance().getFont("score"), 30);
+	//centerOrigin(text);
+	bestScore.setPosition(20.f, 250.f);
+	bestScore.setFillColor(sf::Color::Black);
 
-		_game->window().draw(text);
-	}
-
-
+	_game->window().draw(currentScore);
+	_game->window().draw(bestScore);
 
 	if (_showGameOverScreen) {
 		sf::RectangleShape overlay(sf::Vector2f(_worldBounds.width, _worldBounds.height));
