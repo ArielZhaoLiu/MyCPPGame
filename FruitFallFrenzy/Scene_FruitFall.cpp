@@ -696,6 +696,7 @@ void Scene_FruitFall::checkPowerUpsCollision()
 				e->destroy();
 
 				createTimeBonusPopup("+10s", 2.f, 2.f);
+				SoundPlayer::getInstance().play("time");
 			}
 			else if (e->getComponent<CAnimation>().animation.getName() == "magnet")
 			{
@@ -714,9 +715,11 @@ void Scene_FruitFall::checkPowerUpsCollision()
 			}
 			else if (e->getComponent<CAnimation>().animation.getName() == "slowdown")
 			{
+
 				if (!_player->hasComponent<CSlowDownEffect>()) {
 					_player->addComponent<CSlowDownEffect>(5.f, 300.f);
 					_config.fruitSpeed -= 300;
+					SoundPlayer::getInstance().play("slowdown");
 				}
 
 				if (_config.slowdownEntity == nullptr) {

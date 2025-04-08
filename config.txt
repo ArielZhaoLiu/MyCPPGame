@@ -38,7 +38,8 @@ Sound explosion             ../assets/Sound/explosion.wav
 Sound sayNo             ../assets/Sound/sayNo.wav
 Sound clock             ../assets/Sound/clock.wav
 Sound magnet             ../assets/Sound/magnet.wav
-
+Sound slowdown           ../assets/Sound/slowdown.wav
+Sound time             ../assets/Sound/time.wav
 
 
 JSON                    ../assets/Textures/FruitTree.json
