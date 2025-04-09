@@ -152,6 +152,13 @@ struct CScorePopup : public Component {
     }
 };
 
+struct CStunned : public Component {
+    float duration = 0.f;
+
+    CStunned() = default;
+    CStunned(float d) : duration(d) {}
+};
+
 
 
 #endif //BREAKOUT_COMPONENTS_H

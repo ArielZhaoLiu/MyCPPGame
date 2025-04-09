@@ -413,13 +413,24 @@ void Scene_FruitFall::onEnd()
 }
 
 
-void Scene_FruitFall::playerMovement()
+void Scene_FruitFall::playerMovement(sf::Time dt)
 {
-	/*
-	// no movement if player is dead
-	if (_player->hasComponent<CState>() && _player->getComponent<CState>().state == "dead")
+	
+	// no movement if player is stunned
+	if (_player->hasComponent<CStunned>()) {
+		auto& effect = _player->getComponent<CStunned>();
+		effect.duration -= dt.asSeconds();
+		if (effect.duration <= 0.f) {
+			_player->removeComponent<CStunned>();
+		}
+
 		return;
-	*/
+	}
+	
+	// no movement if game over
+	if (_isGameOver) {
+		return;
+	}
 
 	// player movement
 	auto& pInput = _player->getComponent<CInput>();
@@ -673,14 +684,17 @@ void Scene_FruitFall::checkBombsCollision()
 
 				SoundPlayer::getInstance().play("explosion", 18);
 				e->addComponent<CAnimation>(Assets::getInstance().getAnimation("explosion"));
-				_player->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("sadface");
+				_playerFront->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("sadface");
 
 				e->getComponent<CAnimation>().hasExploded = true;
 
 				createScorePopup(e->getComponent<CTransform>().pos, "-40");
 				createTimeBonusPopup("-30s", 2.f, 2.f);
 
-
+				// let player stunned for 2 second
+				if (!_player->hasComponent<CStunned>()) {
+					_player->addComponent<CStunned>(2.f);
+				}
 			}			
 			//e->destroy();
 		}
@@ -827,7 +841,7 @@ void Scene_FruitFall::sAnimation(sf::Time dt)
 
 void Scene_FruitFall::sMovement(sf::Time dt)
 {
-	playerMovement();
+	playerMovement(dt);
 
 	// move all the objects that have a transform component
 	for (auto e : _entityManager.getEntities()) {

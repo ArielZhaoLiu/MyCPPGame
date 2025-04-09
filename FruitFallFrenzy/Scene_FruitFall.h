@@ -79,7 +79,7 @@ class Scene_FruitFall : public Scene {
 	void                    spawnIcons();
 	void                    spawnBombs();
 	void                    spawnPowerUps();
-	void                    playerMovement();
+	void                    playerMovement(sf::Time dt);
 	void                    annimatePlayer();
 	void                    adjustPlayerPosition(sf::Time dt);
 	void                    adjustFruitPosition(sf::Time dt);
