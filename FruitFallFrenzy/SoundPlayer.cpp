@@ -1,4 +1,4 @@
-//
+﻿//
 // Created by David Burchill on 2022-11-29.
 //
 
@@ -35,12 +35,12 @@ SoundPlayer &SoundPlayer::getInstance() {
 }
 
 
-void SoundPlayer::play(String effect) {
-    play(effect, getListnerPosition());
+void SoundPlayer::play(String effect, float volumn) {
+    play(effect, getListnerPosition(), volumn);
 }
 
 
-void SoundPlayer::play(String effect, sf::Vector2f position) {
+void SoundPlayer::play(String effect, sf::Vector2f position, float volumn) {
     _sounds.push_back(sf::Sound());
     sf::Sound &sound = _sounds.back();
 
@@ -49,6 +49,7 @@ void SoundPlayer::play(String effect, sf::Vector2f position) {
     sound.setPosition(position.x,  0.f, -position.y);   // sounds are in the plane
     sound.setAttenuation(Attenuation);
     sound.setMinDistance(MinDistance3D);
+	sound.setVolume(volumn);
 
     sound.play();
 }

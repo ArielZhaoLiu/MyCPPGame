@@ -36,10 +36,14 @@ Sound catch2             ../assets/Sound/catchFruit2.wav
 Sound catch3             ../assets/Sound/catchFruit3.wav
 Sound explosion             ../assets/Sound/explosion.wav
 Sound sayNo             ../assets/Sound/sayNo.wav
+Sound sayNo2             ../assets/Sound/sayNo2.wav
 Sound clock             ../assets/Sound/clock.wav
 Sound magnet             ../assets/Sound/magnet.wav
 Sound slowdown           ../assets/Sound/slowdown.wav
 Sound time             ../assets/Sound/time.wav
+Sound win             ../assets/Sound/level-win.wav
+Sound plop             ../assets/Sound/plop.wav
+
 
 
 JSON                    ../assets/Textures/FruitTree.json

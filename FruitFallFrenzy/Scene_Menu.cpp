@@ -2,6 +2,7 @@
 #include "Scene_FruitFall.h"
 #include "MusicPlayer.h"
 #include <memory>
+#include "SoundPlayer.h"
 
 void Scene_Menu::onEnd()
 {
@@ -190,10 +191,13 @@ void Scene_Menu::sDoAction(const Command& action)
 		if (action.name() == "UP")
 		{
 			_menuIndex = (_menuIndex + _menuStrings.size() - 1) % _menuStrings.size();
+			SoundPlayer::getInstance().play("plop", 15);
+
 		} 
 		else if (action.name() == "DOWN")
 		{
 			_menuIndex = (_menuIndex + 1) % _menuStrings.size();
+			SoundPlayer::getInstance().play("plop", 20);
 		}
 		else if (action.name() == "PLAY")
 		{

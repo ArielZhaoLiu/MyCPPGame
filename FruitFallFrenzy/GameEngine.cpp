@@ -76,7 +76,9 @@ void GameEngine::sUserInput()
 				currentScene()->doAction( Command(currentScene()->getActionMap().at(event.key.code), actionType) );
 			}
 		}
+	
 	}
+
 }
 
 

@@ -433,9 +433,9 @@ void Scene_FruitFall::playerMovement()
 		
 	if (pInput.left && !pInput.right)
 	{
-		transform.pos.x -=10;
-		transformFront.pos.x -= 10;
-		transformBack.pos.x -= 10;
+		transform.pos.x -=40;
+		transformFront.pos.x -= 40;
+		transformBack.pos.x -= 40;
 
 
 		if (_playerFront && _playerFront->hasComponent<CAnimation>()) {
@@ -445,15 +445,15 @@ void Scene_FruitFall::playerMovement()
 			_playerBack->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("left_back");
 		}
 		
-		SoundPlayer::getInstance().play("move");
-		//pInput.left = false;
+		SoundPlayer::getInstance().play("move", 15);
+		pInput.left = false;
 	}
 		
 	else if (pInput.right && !pInput.left)
 	{
-		transform.pos.x +=10; 
-		transformFront.pos.x += 10;
-		transformBack.pos.x += 10;
+		transform.pos.x +=40; 
+		transformFront.pos.x += 40;
+		transformBack.pos.x += 40;
 
 		if (_playerFront && _playerFront->hasComponent<CAnimation>()) {
 			_playerFront->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("left_front");
@@ -465,8 +465,8 @@ void Scene_FruitFall::playerMovement()
 		}
 
 	
-		SoundPlayer::getInstance().play("move");
-		//pInput.right = false;
+		SoundPlayer::getInstance().play("move", 15);
+		pInput.right = false;
 
 	}
 	/*else
@@ -609,7 +609,7 @@ void Scene_FruitFall::checkFruitsCollision()
 		auto overlap = Physics::getOverlap(_player, e);
 		if (fruitState != "caught" && overlap.x > 0 && overlap.y > 0) {
             fruitState = "caught";
-			SoundPlayer::getInstance().play("catch2");
+			SoundPlayer::getInstance().play("catch2", 10);
 
 			if (e->getComponent<CAnimation>().animation.getName() == "apple")
 			{
@@ -671,11 +671,15 @@ void Scene_FruitFall::checkBombsCollision()
 				_config.currentScore -= 40;
 				_config.countdownTime -= 30;
 
-				SoundPlayer::getInstance().play("explosion");
+				SoundPlayer::getInstance().play("explosion", 18);
 				e->addComponent<CAnimation>(Assets::getInstance().getAnimation("explosion"));
 				_player->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("sadface");
 
 				e->getComponent<CAnimation>().hasExploded = true;
+
+				createScorePopup(e->getComponent<CTransform>().pos, "-40");
+				createTimeBonusPopup("-30s", 2.f, 2.f);
+
 
 			}			
 			//e->destroy();
@@ -696,7 +700,7 @@ void Scene_FruitFall::checkPowerUpsCollision()
 				e->destroy();
 
 				createTimeBonusPopup("+10s", 2.f, 2.f);
-				SoundPlayer::getInstance().play("time");
+				SoundPlayer::getInstance().play("time", 20);
 			}
 			else if (e->getComponent<CAnimation>().animation.getName() == "magnet")
 			{
@@ -709,7 +713,7 @@ void Scene_FruitFall::checkPowerUpsCollision()
 					_config.magnetTimer = 5.f;
 				}
 
-				SoundPlayer::getInstance().play("magnet");
+				SoundPlayer::getInstance().play("magnet", 20);
 				//e->destroy();
 
 			}
@@ -719,7 +723,7 @@ void Scene_FruitFall::checkPowerUpsCollision()
 				if (!_player->hasComponent<CSlowDownEffect>()) {
 					_player->addComponent<CSlowDownEffect>(5.f, 300.f);
 					_config.fruitSpeed -= 300;
-					SoundPlayer::getInstance().play("slowdown");
+					SoundPlayer::getInstance().play("slowdown", 20);
 				}
 
 				if (_config.slowdownEntity == nullptr) {
@@ -813,7 +817,7 @@ void Scene_FruitFall::sAnimation(sf::Time dt)
 			anim.animation.update(dt);
 
 			if (anim.animation.getName() == "explosion" && anim.animation.hasEnded()) { // for explosion
-				SoundPlayer::getInstance().play("sayNo");
+				SoundPlayer::getInstance().play("sayNo2", 20);
 				e->destroy();
 				
 			}
@@ -973,6 +977,7 @@ void Scene_FruitFall::sUpdate(sf::Time dt)
 	if (_config.countdownTime <= 0.f) {
 		_isGameOver = true;
 		_config.countdownTime = 0;
+		SoundPlayer::getInstance().play("win", 15);
 	}
 	
 	_entityManager.update();
@@ -1176,7 +1181,6 @@ void Scene_FruitFall::sRender()
 			bestScore.setPosition(350, 310);
 			bestScore.setFillColor(textColor);
 			_game->window().draw(bestScore);
-
 
 			std::vector<std::string> fruitNames = { "apple", "banana", "watermelon", "strawbury", "mango", "cherry" };
 

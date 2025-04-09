@@ -34,8 +34,8 @@ public:
     SoundPlayer& operator=(SoundPlayer&&) = delete;
 
 public:
-    void			    play(String effect);
-    void			    play(String effect, sf::Vector2f position);
+    void			    play(String effect, float volumn);
+    void			    play(String effect, sf::Vector2f position, float volumn);
     void			    removeStoppedSounds();
     void			    setListnerPosition(sf::Vector2f position);
     void			    setListnerDirection(sf::Vector2f position);
