@@ -11,6 +11,7 @@ MusicPlayer::MusicPlayer() {
     _filenames["menuTheme"] = "../assets/Music/menu_theme.mp3";
     _filenames["menuTheme2"] = "../assets/Music/menu_theme2.mp3";
     _filenames["gameTheme"] = "../assets/Music/game_theme.wav";
+    _filenames["gameOver"] = "../assets/Music/level_win.mp3";
 }
 
 void MusicPlayer::addSong(const std::string&name, const std::string&path) {

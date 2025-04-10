@@ -144,6 +144,7 @@ struct CScorePopup : public Component {
 	bool hasIcon{ false };
 
 	CScorePopup() = default;
+
 	CScorePopup(const std::string& t, sf::Vector2f v, float lt, float mlt)
 		: text(t), velocity(v), lifetime(lt), maxLifetime(mlt) {
 	}
@@ -157,6 +158,20 @@ struct CStunned : public Component {
 
     CStunned() = default;
     CStunned(float d) : duration(d) {}
+};
+
+struct CTextPopup : public Component {
+
+    sf::RectangleShape shape;
+    sf::Text sfText;
+    std::string text;
+    float lifetime;
+    float maxLifetime;
+
+	CTextPopup() = default;
+	CTextPopup(const std::string& t, float lt, float mlt)
+		: text(t), lifetime(lt), maxLifetime(mlt) {
+	}
 };
 
 

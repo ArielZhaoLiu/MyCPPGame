@@ -13,6 +13,7 @@ Font    score           ../assets/fonts/FZCuYuan-M03S.ttf
 Music gameTheme         ../assets/Music/game_theme.wav
 Music missionTheme      ../assets/Music/menu_theme.mp3
 Music menuTheme      ../assets/Music/menu_theme2.mp3
+Music gameOver      ../assets/Music/level_win.mp3
 
 # Textures
 Texture Background      ../assets/Textures/bg.jpg

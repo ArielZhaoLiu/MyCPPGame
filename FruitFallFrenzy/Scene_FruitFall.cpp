@@ -176,6 +176,33 @@ void Scene_FruitFall::createScorePopup(sf::Vector2f pos, const std::string& text
 	popupComp.maxLifetime = 1.f;
 }
 
+void Scene_FruitFall::createTextPopup(const std::string& text, float lt)
+{
+
+	auto popup = _entityManager.addEntity("textPopup");
+
+	sf::Vector2f pos{ _worldBounds.width / 2.f, _worldBounds.height - 80.f };
+	popup->addComponent<CTransform>(pos);
+
+	auto& popupComp = popup->addComponent<CTextPopup>();
+	popupComp.lifetime = lt;
+	popupComp.text = text;
+
+	popupComp.shape.setSize(sf::Vector2f(1400.f, 120.f));
+	popupComp.shape.setFillColor(sf::Color(90, 204, 166)); 
+	popupComp.shape.setOrigin(popupComp.shape.getSize() / 2.f);
+	popupComp.shape.setOutlineColor(sf::Color::Black);
+	popupComp.shape.setOutlineThickness(2.f);
+
+	popupComp.sfText.setFont(Assets::getInstance().getFont("main"));
+	popupComp.sfText.setString(text);
+	popupComp.sfText.setCharacterSize(30);
+	popupComp.sfText.setFillColor(sf::Color(57, 7, 110));
+	popupComp.sfText.setStyle(sf::Text::Bold);
+	popupComp.sfText.setOrigin(popupComp.sfText.getLocalBounds().width / 2.f, popupComp.sfText.getLocalBounds().height / 2.f);
+
+}
+
 void Scene_FruitFall::createTimeBonusPopup(const std::string& text, float lt, float mlt)
 {
 	auto popup = _entityManager.addEntity("scorePopup");
@@ -246,7 +273,7 @@ void Scene_FruitFall::spawnFruitAt(float x)
 
 void Scene_FruitFall::spawnMultipleFruits(int count)
 {
-	std::uniform_int_distribution<int> distX(180, static_cast<int>(_worldBounds.width - 200));
+	std::uniform_int_distribution<int> distX(250, static_cast<int>(_worldBounds.width - 250));
 
 	for (int i = 0; i < count; ++i) {
 		float x = static_cast<float>(distX(rng));
@@ -704,11 +731,19 @@ void Scene_FruitFall::checkBombsCollision()
 
 				createScorePopup(e->getComponent<CTransform>().pos, "-40");
 				createTimeBonusPopup("-30s", 2.f, 2.f);
+				createTextPopup("You got stunned for 2 seconds!", 2.f);
+
+				//createScorePopup(sf::Vector2f(_worldBounds.width / 2, _worldBounds.height / 2), "Studded for 2 seconds");
 
 				// let player stunned for 2 second
 				if (!_player->hasComponent<CStunned>()) {
 					_player->addComponent<CStunned>(2.f);
 				}
+
+				_isFlashing = true;
+				_flashAlpha = 255.f;
+				_flashColor = sf::Color(255, 100, 100, static_cast<sf::Uint8>(_flashAlpha));
+				_flashRect.setFillColor(_flashColor);
 			}			
 			//e->destroy();
 		}
@@ -729,6 +764,8 @@ void Scene_FruitFall::checkPowerUpsCollision()
 
 				createTimeBonusPopup("+10s", 2.f, 2.f);
 				SoundPlayer::getInstance().play("time", 20);
+				createTextPopup("Great Catch! You got 10 more Seconds!", 5.f);
+
 			}
 			else if (e->getComponent<CAnimation>().animation.getName() == "magnet")
 			{
@@ -742,6 +779,8 @@ void Scene_FruitFall::checkPowerUpsCollision()
 				}
 
 				SoundPlayer::getInstance().play("magnet", 20);
+				createTextPopup("Great Catch! All Fruits are coming to You!", 5.f);
+
 				//e->destroy();
 
 			}
@@ -752,6 +791,8 @@ void Scene_FruitFall::checkPowerUpsCollision()
 					_player->addComponent<CSlowDownEffect>(5.f, 300.f);
 					_config.fruitSpeed -= 100;
 					SoundPlayer::getInstance().play("slowdown", 20);
+					createTextPopup("Great Catch! Falling Speed decreased", 5.f);
+
 				}
 
 				if (_config.slowdownEntity == nullptr) {
@@ -767,13 +808,13 @@ void Scene_FruitFall::checkPowerUpsCollision()
 					_config.isFrenzy = true;
 					_config.frenzyTimer = 5.f; 
 					SoundPlayer::getInstance().play("frenzy2", 20); 
-					// 可选：显示文字 popup "FRENZY!" 或屏幕闪光
+					createTextPopup("You are on Fire! Fruit Fall Frenzy! Let's Dance!", 5.f);
 
 					_isFlashing = true;
 					_flashAlpha = 255.f;
-					_flashRect.setFillColor(sf::Color(255, 255, 255, static_cast<sf::Uint8>(_flashAlpha)));
+					_flashColor = sf::Color(255, 200, 0, static_cast<sf::Uint8>(_flashAlpha));
+					_flashRect.setFillColor(_flashColor);
 				}
-
 
 				if (_config.frenzyEntity == nullptr) {
 					_config.frenzyEntity = e;
@@ -931,6 +972,17 @@ void Scene_FruitFall::sUpdate(sf::Time dt)
 		}
 	}
 
+	// For popup text descriptions
+	for (auto e : _entityManager.getEntities("textPopup")) {
+		auto& tfm = e->getComponent<CTransform>();
+		auto& popup = e->getComponent<CTextPopup>();
+
+		popup.lifetime -= dt.asSeconds();
+		if (popup.lifetime <= 0.f) {
+			e->destroy();	
+		}
+	}
+
 	if (_config.isFrenzy) {
 		_config.frenzyTimer -= dt.asSeconds();
 
@@ -949,12 +1001,12 @@ void Scene_FruitFall::sUpdate(sf::Time dt)
 	}
 
 	if (_isFlashing) {
-		_flashAlpha -= dt.asSeconds() * 300.f; // 控制闪光速度
+		_flashAlpha -= dt.asSeconds() * 350.f; //flashing speed
 		if (_flashAlpha <= 0.f) {
 			_flashAlpha = 0.f;
 			_isFlashing = false;
 		}
-		_flashRect.setFillColor(sf::Color(255, 100, 100, static_cast<sf::Uint8>(_flashAlpha)));
+		_flashRect.setFillColor(sf::Color(_flashColor.r, _flashColor.g, _flashColor.b, static_cast<sf::Uint8>(_flashAlpha)));
 	}
 
 	
@@ -962,9 +1014,14 @@ void Scene_FruitFall::sUpdate(sf::Time dt)
 	_config.countdownTime -= dt.asSeconds(); // countdown time decrease
 
 	if (_config.countdownTime <= 0.f) {
+		if (_isGameOver == false) {
+			MusicPlayer::getInstance().play("gameOver");
+			// SoundPlayer::getInstance().play("win", 15);
+
+		}
 		_isGameOver = true;
 		_config.countdownTime = 0;
-		//SoundPlayer::getInstance().play("win", 15);
+		
 	}
 	SoundPlayer::getInstance().removeStoppedSounds();
 
@@ -1030,8 +1087,11 @@ void Scene_FruitFall::updateGamePhase(sf::Time dt)
 
 	_config.gameTime += dt.asSeconds(); // game total time
 
-	// game phase
 
+	// Track the last time a popup was created
+	static float lastPopUpTime = 0.f;
+
+	// game phase
 
 	if (_config.gameTime >= 90 && _config.slowdownEntity == nullptr) {
 		_config.fruitSpeed = 300.f;
@@ -1052,6 +1112,10 @@ void Scene_FruitFall::updateGamePhase(sf::Time dt)
 		_config.spawnFruitInterval = 0.1f;
 		_config.spawnPowerUpInterval = 2.f;
 		_config.spawnBombsInterval = 0.4f;
+		if (_config.gameTime - lastPopUpTime >= 1.f) { // 1 second interval
+			createTextPopup("Level Up! Fruit Fall Frenzy!", 1.f);
+			lastPopUpTime = _config.gameTime;
+		}
 
 	}
 
@@ -1068,6 +1132,10 @@ void Scene_FruitFall::updateGamePhase(sf::Time dt)
 		_config.spawnFruitInterval = 0.3f;
 		_config.spawnPowerUpInterval = 2.f;
 		_config.spawnBombsInterval = 1.f;
+		if (_config.gameTime - lastPopUpTime >= 1.f) { // 1 second interval
+			createTextPopup("Level Up! Do you enjoy the fast?", 1.f);
+			lastPopUpTime = _config.gameTime;
+		}
 
 	}
 
@@ -1083,11 +1151,37 @@ void Scene_FruitFall::updateGamePhase(sf::Time dt)
 		_config.spawnFruitInterval = 0.5f;
 		_config.spawnPowerUpInterval = 4.f;
 		_config.spawnBombsInterval = 2.3f;
+		if (_config.gameTime - lastPopUpTime >= 1.f) { // 1 second interval
+			createTextPopup("Tip: Different fruits have different scores", 1.f);
+			lastPopUpTime = _config.gameTime;
+		}
 	}
-
-
 	else if (_config.gameTime >= 10 && _config.slowdownEntity == nullptr) {
 		_config.fruitSpeed = 300.f;
+		if (_config.gameTime - lastPopUpTime >= 1.f) { // 1 second interval
+			createTextPopup("Level Up! Catch Power Ups for Help", 1.f);
+			lastPopUpTime = _config.gameTime;
+		}
+	
+	}
+	else if (_config.gameTime >= 5 && _config.slowdownEntity == nullptr) {
+		if (_config.gameTime - lastPopUpTime >= 1.f) { // 1 second interval
+			createTextPopup("Tip: Watch out for the Bombs.", 1.f);
+			lastPopUpTime = _config.gameTime;
+		}
+	}
+	else if (_config.gameTime >= 3 && _config.slowdownEntity == nullptr) {
+		if (_config.gameTime - lastPopUpTime >= 1.f) { // 2 seconds interval
+			createTextPopup("Tip: Use A/Left arrow or D/Right arrow to control the basket.", 2.f);
+			lastPopUpTime = _config.gameTime;
+		}
+	}
+
+	else if (_config.gameTime >= 0 && _config.slowdownEntity == nullptr) {
+		if (_config.gameTime - lastPopUpTime >= 1.f) { // 2 seconds interval
+			createTextPopup("The orchard is under attack. Collect fruits and protect the tree", 2.f);
+			lastPopUpTime = _config.gameTime;
+		}
 	}
 
 	////
@@ -1099,6 +1193,7 @@ void Scene_FruitFall::updateGamePhase(sf::Time dt)
 
 	if (_config.gameTime >= 5 && _config.spawnBombTimer >= _config.spawnBombsInterval) {
 		spawnBombs();
+		//createTextPopup("Watch out! Bombs are falling!", 2.f);
 		_config.spawnBombTimer = 0.f;
 	}
 
@@ -1107,7 +1202,7 @@ void Scene_FruitFall::updateGamePhase(sf::Time dt)
 		_config.spawnFruitTimer = 0.f;
 	}
 
-	std::cout << "Speed: " << _config.fruitSpeed << "intervel: " << _config.spawnFruitInterval << "\n";
+	//std::cout << "Speed: " << _config.fruitSpeed << "intervel: " << _config.spawnFruitInterval << "\n";
 
 
 }
@@ -1228,6 +1323,19 @@ void Scene_FruitFall::sRender()
 		text.setPosition(tfm.pos.x, tfm.pos.y - 100.f);
 
 		_game->window().draw(text);
+	}
+
+	for (auto& e : _entityManager.getEntities("textPopup")) {
+		if (e->hasComponent<CTransform>() && e->hasComponent<CTextPopup>()) {
+			auto& transform = e->getComponent<CTransform>();
+			auto& popup = e->getComponent<CTextPopup>();
+
+			popup.shape.setPosition(transform.pos);
+			popup.sfText.setPosition(transform.pos.x, transform.pos.y - 10.f); 
+
+			_game->window().draw(popup.shape);
+			_game->window().draw(popup.sfText);
+		}
 	}
 
 	// Draw PowerUps (magnet, slowdown attached in front of basket)

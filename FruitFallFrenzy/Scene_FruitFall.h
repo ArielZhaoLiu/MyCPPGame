@@ -70,6 +70,7 @@ class Scene_FruitFall : public Scene {
 	sf::RectangleShape					_flashRect;      // frenzy effect, flashing
 	float								_flashAlpha = 0.f;
 	bool								_isFlashing = false;
+	sf::Color							_flashColor;
 
 	//systems
 	void 				    sAnimation(sf::Time dt);
@@ -110,6 +111,7 @@ class Scene_FruitFall : public Scene {
 	void					loadHighestScore();
 
 	void 					createScorePopup(sf::Vector2f pos, const std::string& text);
+	void 					createTextPopup(const std::string& text, float lt);
 	void 					createTimeBonusPopup(const std::string& text, float lt, float mlt);
 
 
