@@ -28,15 +28,17 @@ void Scene_Menu:: init()
     registerAction(sf::Keyboard::Down,	 	"DOWN");
 	registerAction(sf::Keyboard::D,			"PLAY");
 	registerAction(sf::Keyboard::Escape,	"QUIT");
+	registerAction(sf::Keyboard::B,			"BACK");
 
 	_menuStrings.push_back("START GAME");
 	_menuStrings.push_back("HINTS");
-	_menuStrings.push_back("SETTINGS");
+	_menuStrings.push_back("ACKNOWLEDGEMENTS");
 	_menuStrings.push_back("QUIT");
 
 	_levelPaths.push_back("../assets/level1.txt");
-	_levelPaths.push_back("../assets/level1.txt");
-	_levelPaths.push_back("../assets/level1.txt");
+	_levelPaths.push_back("");
+	_levelPaths.push_back("");
+	_levelPaths.push_back("");
 
 	_menuText.setFont(Assets::getInstance().getFont("Frijole"));
 
@@ -48,6 +50,13 @@ void Scene_Menu:: init()
 	}
 	else {
 		std::cerr << "Failed to load background image!" << std::endl;
+	}
+
+	if (_acknowledgementTexture.loadFromFile("../assets/Textures/acknoledgement.png")) {
+		_acknowledgementSprite.setTexture(_acknowledgementTexture);
+	}
+	else {
+		std::cerr << "Failed to load acknowledgement image!" << std::endl;
 	}
 
 	if (_frontTreeTexture.loadFromFile("../assets/Textures/menu_tree_front.png")) {
@@ -152,19 +161,31 @@ void Scene_Menu::sRender()
 	_menuText.setPosition(100, 80);
 	_game->window().draw(_menuText);
 
-	for (size_t i{ 0 }; i < _menuStrings.size(); ++i)
-	{
-		_menuText.setString(_menuStrings.at(i)); //  getLocalBounds() get correct width
-		sf::FloatRect textBounds = _menuText.getLocalBounds();
+	// Draw menu acknowledgements
+	if (_showAcknowledgements) {
+		_acknowledgementSprite.setPosition(_game->window().getSize().x / 2.f -516.f, _game->window().getSize().y / 2.f - 500.f);
+		sf::RectangleShape overlay(sf::Vector2f(_game->windowSize().x, _game->windowSize().y));
+		overlay.setFillColor(sf::Color(0, 0, 0, 150));
+		_game->window().draw(overlay);
+		_game->window().draw(_acknowledgementSprite);
+	}
+	else {
+		for (size_t i{ 0 }; i < _menuStrings.size(); ++i)
+		{
+			_menuText.setString(_menuStrings.at(i)); //  getLocalBounds() get correct width
+			sf::FloatRect textBounds = _menuText.getLocalBounds();
 
-		_menuText.setOrigin(textBounds.width / 2.f, textBounds.height / 2.f); // 
-		_menuText.setPosition(_game->window().getSize().x / 2.f, 590 + (i + 1) * 70); // allign center
+			_menuText.setOrigin(textBounds.width / 2.f, textBounds.height / 2.f); // 
+			_menuText.setPosition(_game->window().getSize().x / 2.f, 590 + (i + 1) * 70); // allign center
 
-		_menuText.setFillColor((i == _menuIndex) ? selectedColor : normalColor);
-		_menuText.setScale((i == _menuIndex) ? sf::Vector2f(1.2f, 1.2f) : sf::Vector2f(1.0f, 1.0f));
+			_menuText.setFillColor((i == _menuIndex) ? selectedColor : normalColor);
+			_menuText.setScale((i == _menuIndex) ? sf::Vector2f(1.2f, 1.2f) : sf::Vector2f(1.0f, 1.0f));
 
-		_game->window().draw(_menuText);
-	} 
+			_game->window().draw(_menuText);
+		}
+	}
+
+	
 
 	_game->window().draw(footer);
 	//m_game->window().display();
@@ -201,7 +222,24 @@ void Scene_Menu::sDoAction(const Command& action)
 		}
 		else if (action.name() == "PLAY")
 		{
-			_game->changeScene("PLAY", std::make_shared<Scene_FruitFall>(_game, _levelPaths[_menuIndex]));
+			std::string selectedItem = _menuStrings[_menuIndex];
+			if (selectedItem == "ACKNOWLEDGEMENTS"){
+				_acknowledgementTexture.loadFromFile("assets/images/acknoledgement.png");
+				_acknowledgementSprite.setTexture(_acknowledgementTexture);
+				_showAcknowledgements = true;
+			}
+			else
+			{
+				_game->changeScene("PLAY", std::make_shared<Scene_FruitFall>(_game, _levelPaths[_menuIndex]));
+			}
+			
+		}
+		else if (action.name() == "BACK")
+		{
+			if (_showAcknowledgements)
+			{
+				_showAcknowledgements = false;
+			}
 		}
 		else if (action.name() == "QUIT")
 		{

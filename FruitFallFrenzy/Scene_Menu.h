@@ -5,6 +5,7 @@
 class Scene_Menu : public Scene
 {
 private:
+
 	std::vector<std::string>	_menuStrings;
 	sf::Text					_menuText;
 	std::vector<std::string>	_levelPaths;
@@ -13,6 +14,10 @@ private:
 
 	sf::Texture					_backgroundTexture;
 	sf::Sprite					_backgroundSprite;
+
+	bool						_showAcknowledgements = false;
+	sf::Texture					_acknowledgementTexture;
+	sf::Sprite					_acknowledgementSprite;
 
 	sf::Texture					_frontTreeTexture;
 	sf::Sprite					_frontTreeSprite;
