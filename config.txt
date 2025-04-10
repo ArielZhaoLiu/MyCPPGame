@@ -43,6 +43,8 @@ Sound slowdown           ../assets/Sound/slowdown.wav
 Sound time             ../assets/Sound/time.wav
 Sound win             ../assets/Sound/level-win.wav
 Sound plop             ../assets/Sound/plop.wav
+Sound frenzy             ../assets/Sound/frenzy.wav
+Sound frenzy2             ../assets/Sound/frenzy2.wav
 
 
 
@@ -85,4 +87,5 @@ Animation       stand_front     Baskets      10       yes
 Animation       stand_back      Baskets      10       yes
 Animation       left_front      Baskets      10       no
 Animation       left_back       Baskets      10       no
+Animation       watchout       	Baskets      1        no
 

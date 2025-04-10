@@ -37,6 +37,9 @@ void Scene_FruitFall::init(const std::string& levelPath)
 	MusicPlayer::getInstance().play("gameTheme");
 	MusicPlayer::getInstance().setVolume(10);
 
+	_flashRect.setSize(sf::Vector2f(_worldBounds.width, _worldBounds.height));
+	_flashRect.setFillColor(sf::Color(255, 255, 255, 0));
+
 
 	// for clouds
 	std::string cloudPaths[3] = {
@@ -215,18 +218,21 @@ void Scene_FruitFall::spawnPlayer(sf::Vector2f pos)
 
 void Scene_FruitFall::spawnFruit()
 {
+	std::uniform_int_distribution<int> distX(180, static_cast<int>(_worldBounds.width - 200));
+	float x = static_cast<float>(distX(rng));
+	spawnFruitAt(x);
+}
+
+void Scene_FruitFall::spawnFruitAt(float x)
+{
 	auto fruitTypes = _config.fruitTypes;
 
 	// spawn random fruit type
 	std::uniform_int_distribution<int> dist(0, fruitTypes.size() - 1);
 	auto fruitType = fruitTypes[dist(rng)];
 
-	// spawn random position
-	auto pos = sf::Vector2f{ 0.f, 0.f };
-	std::uniform_int_distribution<int> distX(180, static_cast<int>(_worldBounds.width - 200));
-	pos.x = static_cast<float>(distX(rng));
-
-
+	// spawn position
+	auto pos = sf::Vector2f{ x, 0.f };
 	auto vel = _config.fruitSpeed * uVecBearing(90);
 	auto e = _entityManager.addEntity("fruit");
 	e->addComponent<CTransform>(pos, vel);
@@ -236,6 +242,16 @@ void Scene_FruitFall::spawnFruit()
 	bb.x *= scale;
 	bb.y *= scale;
 	e->addComponent<CBoundingBox>(bb);
+}
+
+void Scene_FruitFall::spawnMultipleFruits(int count)
+{
+	std::uniform_int_distribution<int> distX(180, static_cast<int>(_worldBounds.width - 200));
+
+	for (int i = 0; i < count; ++i) {
+		float x = static_cast<float>(distX(rng));
+		spawnFruitAt(x);
+	}
 }
 
 void Scene_FruitFall::spawnIcons()
@@ -441,7 +457,7 @@ void Scene_FruitFall::playerMovement(sf::Time dt)
 
 
 	sf::Vector2f pv{ 0.f, 0.f };
-		
+
 	if (pInput.left && !pInput.right)
 	{
 		transform.pos.x -=40;
@@ -456,7 +472,7 @@ void Scene_FruitFall::playerMovement(sf::Time dt)
 			_playerBack->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("left_back");
 		}
 		
-		SoundPlayer::getInstance().play("move", 15);
+		SoundPlayer::getInstance().play("move", 40);
 		pInput.left = false;
 	}
 		
@@ -476,24 +492,22 @@ void Scene_FruitFall::playerMovement(sf::Time dt)
 		}
 
 	
-		SoundPlayer::getInstance().play("move", 15);
+		SoundPlayer::getInstance().play("move", 40);
 		pInput.right = false;
 
-	}
-	/*else
-	{
-		_player->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("stand_front");
+	}	
+	//else {
+	//	_playerFront->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("stand_front");
+	//	_playerBack->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("stand_back");
+	//}
 
-	}*/
 	
 	// normalize
 	_player->getComponent<CTransform>().vel = normalize(pv);
 	_playerFront->getComponent<CTransform>().vel = normalize(pv);
 	_playerBack->getComponent<CTransform>().vel = normalize(pv);
 
-
 	annimatePlayer();
-	
 
 }
 
@@ -736,7 +750,7 @@ void Scene_FruitFall::checkPowerUpsCollision()
 
 				if (!_player->hasComponent<CSlowDownEffect>()) {
 					_player->addComponent<CSlowDownEffect>(5.f, 300.f);
-					_config.fruitSpeed -= 300;
+					_config.fruitSpeed -= 100;
 					SoundPlayer::getInstance().play("slowdown", 20);
 				}
 
@@ -749,7 +763,21 @@ void Scene_FruitFall::checkPowerUpsCollision()
 			}
 			else if (e->getComponent<CAnimation>().animation.getName() == "pineapple")
 			{
-				// to do
+				if (!_config.isFrenzy) {
+					_config.isFrenzy = true;
+					_config.frenzyTimer = 5.f; 
+					SoundPlayer::getInstance().play("frenzy2", 20); 
+					// 可选：显示文字 popup "FRENZY!" 或屏幕闪光
+
+					_isFlashing = true;
+					_flashAlpha = 255.f;
+					_flashRect.setFillColor(sf::Color(255, 255, 255, static_cast<sf::Uint8>(_flashAlpha)));
+				}
+
+
+				if (_config.frenzyEntity == nullptr) {
+					_config.frenzyEntity = e;
+				}
 			}
 
 			
@@ -821,6 +849,25 @@ void Scene_FruitFall::updateMagnetEffect(sf::Time dt)
 	}
 }
 
+void Scene_FruitFall::updateFrenzyEffect(sf::Time dt)
+{
+	// magnet effect attached to player
+	if (_config.frenzyEntity) {
+		auto frenzyPos = _player->getComponent<CTransform>().pos;
+
+		float offsetY = -100.f;
+
+		_config.frenzyEntity->getComponent<CTransform>().pos = frenzyPos + sf::Vector2f{ 0, offsetY };
+
+
+		_config.frenzyTimer -= dt.asSeconds();
+		if (_config.frenzyTimer < -3.f) {
+			_config.frenzyEntity->destroy();
+			_config.frenzyEntity = nullptr;
+		}
+	}
+}
+
 void Scene_FruitFall::sAnimation(sf::Time dt)
 {
 
@@ -869,109 +916,6 @@ void Scene_FruitFall::sUpdate(sf::Time dt)
 	std::cout << e.size() << "\n";
 
 	_entityManager.update();
-	SoundPlayer::getInstance().removeStoppedSounds();
-
-	_config.spawnFruitTimer += dt.asSeconds();
-	_config.spawnBombTimer += dt.asSeconds();
-	_config.spawnPowerUpTimer += dt.asSeconds();
-
-
-	_config.gameTime += dt.asSeconds(); // game total time
-	_config.countdownTime -= dt.asSeconds(); // countdown time decrease
-
-
-
-	// game phase
-
-	if (_config.gameTime >= 90 && _config.slowdownEntity == nullptr) {
-		_config.fruitSpeed = 300.f;
-		_config.spawnFruitInterval = 0.1f;
-		_config.spawnPowerUpInterval = 2.f;
-		_config.spawnBombsInterval = 0.2f;
-	}
-
-	if (_config.gameTime >= 85 && _config.slowdownEntity == nullptr) {
-		_config.fruitSpeed = 400.f;
-		_config.spawnFruitInterval = 0.1f;
-		_config.spawnPowerUpInterval = 2.f;
-		_config.spawnBombsInterval = 0.2f;
-	}
-
-	if (_config.gameTime >= 80 && _config.slowdownEntity == nullptr) {
-		_config.fruitSpeed = 600.f;
-		_config.spawnFruitInterval = 0.1f;
-		_config.spawnPowerUpInterval = 2.f;
-		_config.spawnBombsInterval = 0.2f;
-
-	}
-
-	if (_config.gameTime >= 60 && _config.slowdownEntity == nullptr) {
-		_config.fruitSpeed = 500.f;
-		_config.spawnFruitInterval = 0.2f;
-		_config.spawnPowerUpInterval = 2.f;
-		_config.spawnBombsInterval = 0.5f;
-
-	}
-
-	if (_config.gameTime >= 40 && _config.slowdownEntity == nullptr) {
-		_config.fruitSpeed = 500.f;
-		_config.spawnFruitInterval = 0.3f;
-		_config.spawnPowerUpInterval = 2.f;
-		_config.spawnBombsInterval = 1.f;
-
-	}
-
-	if (_config.gameTime >= 30 && _config.slowdownEntity == nullptr) {
-		_config.fruitSpeed = 400.f;
-		_config.spawnFruitInterval = 0.4f;
-		_config.spawnPowerUpInterval = 3.f;
-		
-	}
-
-	if (_config.gameTime >= 15 && _config.slowdownEntity == nullptr) {
-		_config.fruitSpeed = 350.f;
-		_config.spawnFruitInterval = 0.5f;
-		_config.spawnPowerUpInterval = 4.f;
-		_config.spawnBombsInterval = 2.3f;
-	}
-
-	if (_config.gameTime >= 13 && _config.spawnPowerUpTimer >= _config.spawnPowerUpInterval) {
-		spawnPowerUps();
-		_config.spawnPowerUpTimer = 0.f;
-	}
-
-	if (_config.gameTime >= 10) {
-		_config.fruitSpeed = 300.f;
-	}
-
-	if (_config.gameTime >= 5 && _config.spawnBombTimer >= _config.spawnBombsInterval) {
-		spawnBombs();
-		_config.spawnBombTimer = 0.f;
-	}
-
-	if (_config.spawnFruitTimer >= _config.spawnFruitInterval) {
-		spawnFruit();
-		_config.spawnFruitTimer = 0.f;
-	}
-
-	// Clouds
-	float windowWidth = static_cast<float>(_game->window().getSize().x);
-
-	for (int i = 0; i < 6; ++i) {
-		sf::Vector2f pos = _config._clouds[i].getPosition();
-		pos += _config._cloudSpeeds[i] * dt.asSeconds();
-
-		if (pos.x > windowWidth + _config._clouds[i].getGlobalBounds().width) {
-			pos.x = -_config._clouds[i].getGlobalBounds().width;
-		}
-
-		int rowIndex = i / 2;
-		float floatOffset = std::sin(_config._cloudFloatTime * (0.5f + rowIndex * 0.2f)) * 5.f;
-		_config._clouds[i].setPosition(pos.x, _config._cloudBasePos[i].y + floatOffset);
-
-	}
-
-	_config._cloudFloatTime += dt.asSeconds();
 
 
 	// For popup scores
@@ -986,20 +930,53 @@ void Scene_FruitFall::sUpdate(sf::Time dt)
 			e->destroy();
 		}
 	}
+
+	if (_config.isFrenzy) {
+		_config.frenzyTimer -= dt.asSeconds();
+
+		_config.fruitSpeed = 800.f;
+		_config.spawnFruitInterval = 0.2f;
+		_config.spawnBombsInterval = 1.f;
+		_config.spawnPowerUpInterval = 2.f;
+		while (_config.spawnFruitTimer >= _config.spawnFruitInterval) {
+			spawnMultipleFruits(1); 
+			_config.spawnFruitTimer -= _config.spawnFruitInterval;
+		}
+		if (_config.frenzyTimer <= 0.f) {
+			_config.isFrenzy = false;
+			updateGamePhase(dt);
+		}
+	}
+
+	if (_isFlashing) {
+		_flashAlpha -= dt.asSeconds() * 300.f; // 控制闪光速度
+		if (_flashAlpha <= 0.f) {
+			_flashAlpha = 0.f;
+			_isFlashing = false;
+		}
+		_flashRect.setFillColor(sf::Color(255, 100, 100, static_cast<sf::Uint8>(_flashAlpha)));
+	}
+
 	
 	// Game Over
+	_config.countdownTime -= dt.asSeconds(); // countdown time decrease
+
 	if (_config.countdownTime <= 0.f) {
 		_isGameOver = true;
 		_config.countdownTime = 0;
-		SoundPlayer::getInstance().play("win", 15);
+		//SoundPlayer::getInstance().play("win", 15);
 	}
-	
+	SoundPlayer::getInstance().removeStoppedSounds();
+
+	updateClouds(dt);
+	updateGamePhase(dt);
 	_entityManager.update();
 	sAnimation(dt);
 	sMovement(dt);
 	sCollisions();
 	updateSlowdownEffect(dt);
 	updateMagnetEffect(dt);
+	updateFrenzyEffect(dt);
 	adjustPlayerPosition(dt);
 	adjustFruitPosition(dt);
 	checkEntitiesBound();
@@ -1045,6 +1022,115 @@ void Scene_FruitFall::updateGameOver(sf::Time dt)
 	}
 }
 
+void Scene_FruitFall::updateGamePhase(sf::Time dt)
+{
+	_config.spawnFruitTimer += dt.asSeconds();
+	_config.spawnBombTimer += dt.asSeconds();
+	_config.spawnPowerUpTimer += dt.asSeconds();
+
+	_config.gameTime += dt.asSeconds(); // game total time
+
+	// game phase
+
+
+	if (_config.gameTime >= 90 && _config.slowdownEntity == nullptr) {
+		_config.fruitSpeed = 300.f;
+		_config.spawnFruitInterval = 0.1f;
+		_config.spawnPowerUpInterval = 2.f;
+		_config.spawnBombsInterval = 1.f;
+	}
+
+	else if (_config.gameTime >= 85 && _config.slowdownEntity == nullptr) {
+		_config.fruitSpeed = 400.f;
+		_config.spawnFruitInterval = 0.1f;
+		_config.spawnPowerUpInterval = 2.f;
+		_config.spawnBombsInterval = 0.3f;
+	}
+
+	else if (_config.gameTime >= 80 && _config.slowdownEntity == nullptr) {
+		_config.fruitSpeed = 600.f;
+		_config.spawnFruitInterval = 0.1f;
+		_config.spawnPowerUpInterval = 2.f;
+		_config.spawnBombsInterval = 0.4f;
+
+	}
+
+	else if (_config.gameTime >= 60 && _config.slowdownEntity == nullptr) {
+		_config.fruitSpeed = 500.f;
+		_config.spawnFruitInterval = 0.2f;
+		_config.spawnPowerUpInterval = 2.f;
+		_config.spawnBombsInterval = 0.5f;
+
+	}
+
+	else if (_config.gameTime >= 40 && _config.slowdownEntity == nullptr) {
+		_config.fruitSpeed = 500.f;
+		_config.spawnFruitInterval = 0.3f;
+		_config.spawnPowerUpInterval = 2.f;
+		_config.spawnBombsInterval = 1.f;
+
+	}
+
+	else if (_config.gameTime >= 30 && _config.slowdownEntity == nullptr) {
+		_config.fruitSpeed = 400.f;
+		_config.spawnFruitInterval = 0.4f;
+		_config.spawnPowerUpInterval = 3.f;
+
+	}
+
+	else if (_config.gameTime >= 15 && _config.slowdownEntity == nullptr) {
+		_config.fruitSpeed = 350.f;
+		_config.spawnFruitInterval = 0.5f;
+		_config.spawnPowerUpInterval = 4.f;
+		_config.spawnBombsInterval = 2.3f;
+	}
+
+
+	else if (_config.gameTime >= 10 && _config.slowdownEntity == nullptr) {
+		_config.fruitSpeed = 300.f;
+	}
+
+	////
+
+	if (_config.gameTime >= 13 && _config.spawnPowerUpTimer >= _config.spawnPowerUpInterval) {
+		spawnPowerUps();
+		_config.spawnPowerUpTimer = 0.f;
+	}
+
+	if (_config.gameTime >= 5 && _config.spawnBombTimer >= _config.spawnBombsInterval) {
+		spawnBombs();
+		_config.spawnBombTimer = 0.f;
+	}
+
+	while (_config.spawnFruitTimer >= _config.spawnFruitInterval) {
+		spawnFruit();
+		_config.spawnFruitTimer = 0.f;
+	}
+
+	std::cout << "Speed: " << _config.fruitSpeed << "intervel: " << _config.spawnFruitInterval << "\n";
+
+
+}
+
+void Scene_FruitFall::updateClouds(sf::Time dt)
+{
+	float windowWidth = static_cast<float>(_game->window().getSize().x);
+	_config._cloudFloatTime += dt.asSeconds();
+
+	for (int i = 0; i < 6; ++i) {
+		sf::Vector2f pos = _config._clouds[i].getPosition();
+		pos += _config._cloudSpeeds[i] * dt.asSeconds();
+
+		if (pos.x > windowWidth + _config._clouds[i].getGlobalBounds().width) {
+			pos.x = -_config._clouds[i].getGlobalBounds().width;
+		}
+
+		int rowIndex = i / 2;
+		float floatOffset = std::sin(_config._cloudFloatTime * (0.5f + rowIndex * 0.2f)) * 5.f;
+		_config._clouds[i].setPosition(pos.x, _config._cloudBasePos[i].y + floatOffset);
+	}
+}
+
 
 
 void Scene_FruitFall::update(sf::Time dt)
@@ -1085,7 +1171,7 @@ void Scene_FruitFall::sRender()
 	for (auto e : _entityManager.getEntities()) {
 		if (e == _player || e == _playerFront || e == _playerBack ) continue;
 
-		if (_config.magnetEntity || _config.slowdownEntity) {
+		if (_config.magnetEntity || _config.slowdownEntity || _config.frenzyEntity) {
 			if (e == _config.magnetEntity || e == _config.slowdownEntity) {
 				continue;
 			}
@@ -1145,9 +1231,9 @@ void Scene_FruitFall::sRender()
 	}
 
 	// Draw PowerUps (magnet, slowdown attached in front of basket)
-	if (_config.magnetEntity || _config.slowdownEntity) {
+	if (_config.magnetEntity || _config.slowdownEntity || _config.frenzyEntity) {
 		for (auto e : _entityManager.getEntities()) {
-			if (e == _config.magnetEntity || e == _config.slowdownEntity) {
+			if (e == _config.magnetEntity || e == _config.slowdownEntity || e == _config.frenzyEntity) {
 				if (e->getComponent<CAnimation>().has) {
 					auto& anim = e->getComponent<CAnimation>().animation;
 					auto& tfm = e->getComponent<CTransform>();
@@ -1170,6 +1256,10 @@ void Scene_FruitFall::sRender()
 
 	_game->window().draw(currentScore);
 	_game->window().draw(bestScore);
+
+	if (_isFlashing) {
+		_game->window().draw(_flashRect);
+	}
 
 	if (_showGameOverScreen) {
 		sf::RectangleShape overlay(sf::Vector2f(_worldBounds.width, _worldBounds.height));

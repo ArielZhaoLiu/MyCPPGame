@@ -28,6 +28,10 @@ struct LevelConfig {
 	std::shared_ptr<Entity>	slowdownEntity = nullptr;		// slowdown power up entity pointer
 	float					slowdownTimer = 0.0f;			// slowdown effect timer
 
+	std::shared_ptr<Entity>	frenzyEntity = nullptr;			// frenzy power up entity pointer
+	bool					isFrenzy = false;
+	float					frenzyTimer = 0.f;
+
 
 	std::vector<std::string> fruitTypes = { "mango", "apple", "banana", "watermelon", "cherry", "strawbury"};
 	std::vector<std::string> bombTypes = { "bomb" };
@@ -42,7 +46,6 @@ struct LevelConfig {
 
 	std::vector<std::shared_ptr<Entity>>			caughtFruits;
 	std::map<std::string, int>						fruitCollected;
-
 
 };
 
@@ -64,6 +67,10 @@ class Scene_FruitFall : public Scene {
 	float								_overlayAlpha{ 0.f };
 	float								_victoryAlpha{ 0.f };
 
+	sf::RectangleShape					_flashRect;      // frenzy effect, flashing
+	float								_flashAlpha = 0.f;
+	bool								_isFlashing = false;
+
 	//systems
 	void 				    sAnimation(sf::Time dt);
 	void                    sMovement(sf::Time dt);
@@ -76,6 +83,8 @@ class Scene_FruitFall : public Scene {
 	void                    spawnPlayer(sf::Vector2f pos);
 	//void                    spawnFruit(sf::Vector2f pos);
 	void                    spawnFruit();
+	void                    spawnFruitAt(float x);
+	void                    spawnMultipleFruits(int count);
 	void                    spawnIcons();
 	void                    spawnBombs();
 	void                    spawnPowerUps();
@@ -89,7 +98,10 @@ class Scene_FruitFall : public Scene {
 	void                    checkPowerUpsCollision();
 	void                    updateSlowdownEffect(sf::Time dt);
 	void                    updateMagnetEffect(sf::Time dt);
+	void                    updateFrenzyEffect(sf::Time dt);
 	void					updateGameOver(sf::Time dt);
+	void					updateGamePhase(sf::Time dt);
+	void					updateClouds(sf::Time dt);
 
 	void                    init(const std::string& path);
 	void                    loadLevel(const std::string& path);
