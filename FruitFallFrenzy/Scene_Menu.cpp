@@ -254,6 +254,4 @@ void Scene_Menu::spawnAngelAndDevil()
 	auto devil = _entityManager.addEntity("devil");
 	auto& animDevil = devil->addComponent<CAnimation>(Assets::getInstance().getAnimation("devil")).animation;
 	auto& tfmDevil = devil->addComponent<CTransform>(sf::Vector2f(243.f, 846.f));
-
-
 }

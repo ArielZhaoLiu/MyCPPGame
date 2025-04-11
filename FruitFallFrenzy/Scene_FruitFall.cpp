@@ -351,6 +351,7 @@ void Scene_FruitFall::spawnPowerUps()
 	e->addComponent<CBoundingBox>(bb);
 }
 
+
 void Scene_FruitFall::registerActions()
 {
 	registerAction(sf::Keyboard::A, "LEFT");
@@ -967,6 +968,7 @@ void Scene_FruitFall::sUpdate(sf::Time dt)
 	_config.countdownTime -= dt.asSeconds(); // countdown time decrease
 
 	if (_config.countdownTime <= 0.f) {
+
 		if (_isGameOver == false) {
 			MusicPlayer::getInstance().play("gameOver");
 		}
