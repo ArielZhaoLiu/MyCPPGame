@@ -446,7 +446,7 @@ void Scene_FruitFall::onEnd()
 		_config.highestScore = _config.currentScore;
 		saveHighestScore();
 	}
-	//MusicPlayer::getInstance().play("gameOver");
+
 	MusicPlayer::getInstance().setVolume(10);
 
 	// remove all entities
@@ -491,7 +491,6 @@ void Scene_FruitFall::playerMovement(sf::Time dt)
 		transformFront.pos.x -= 40;
 		transformBack.pos.x -= 40;
 
-
 		if (_playerFront && _playerFront->hasComponent<CAnimation>()) {
 			_playerFront->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("left_front");
 		}
@@ -518,53 +517,22 @@ void Scene_FruitFall::playerMovement(sf::Time dt)
 			_playerBack->getComponent<CAnimation>().animation._sprite.setScale(-1.f, 1.f);
 		}
 
-	
 		SoundPlayer::getInstance().play("move", 40);
 		pInput.right = false;
-
 	}	
 	//else {
 	//	_playerFront->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("stand_front");
 	//	_playerBack->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("stand_back");
 	//}
-
 	
 	// normalize
 	_player->getComponent<CTransform>().vel = normalize(pv);
 	_playerFront->getComponent<CTransform>().vel = normalize(pv);
 	_playerBack->getComponent<CTransform>().vel = normalize(pv);
-
-	annimatePlayer();
-
-}
-
-void Scene_FruitFall::annimatePlayer()
-{
-	/*
-	if (_player->getComponent<CState>().state == "dead")
-		return;
-		*/
-
-	//auto& pInput = _player->getComponent<CInput>();
-	//if (pInput.up)
-	//	_player->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("basket");
-	//else if (pInput.down)
-	//	_player->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("basket");
-	//else if (pInput.left)
-	//	_player->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("left");
-	//else if (pInput.right)
-	//	_player->getComponent<CAnimation>().animation = Assets::getInstance().getAnimation("right");
-		
 }
 
 void Scene_FruitFall::adjustPlayerPosition(sf::Time dt)
 {
-	/*
-	// don't ajust position if dead
-	if (_player->getComponent<CState>().state == "dead")
-		return;
-		*/
-
 	auto& playerTfm = _player->getComponent<CTransform>();
 	playerTfm.pos += playerTfm.vel * dt.asSeconds();
 
@@ -709,7 +677,6 @@ void Scene_FruitFall::checkFruitsCollision()
 			}
 		}
 	}
-
 }
 
 void Scene_FruitFall::checkBombsCollision()
@@ -733,8 +700,6 @@ void Scene_FruitFall::checkBombsCollision()
 				createTimeBonusPopup("-30s", 2.f, 2.f);
 				createTextPopup("You got stunned for 2 seconds!", 2.f);
 
-				//createScorePopup(sf::Vector2f(_worldBounds.width / 2, _worldBounds.height / 2), "Studded for 2 seconds");
-
 				// let player stunned for 2 second
 				if (!_player->hasComponent<CStunned>()) {
 					_player->addComponent<CStunned>(2.f);
@@ -745,7 +710,6 @@ void Scene_FruitFall::checkBombsCollision()
 				_flashColor = sf::Color(255, 100, 100, static_cast<sf::Uint8>(_flashAlpha));
 				_flashRect.setFillColor(_flashColor);
 			}			
-			//e->destroy();
 		}
 	}
 }
@@ -763,7 +727,7 @@ void Scene_FruitFall::checkPowerUpsCollision()
 				e->destroy();
 
 				createTimeBonusPopup("+10s", 2.f, 2.f);
-				SoundPlayer::getInstance().play("time", 20);
+				SoundPlayer::getInstance().play("time", 40);
 				createTextPopup("Great Catch! You got 10 more Seconds!", 5.f);
 
 			}
@@ -778,11 +742,8 @@ void Scene_FruitFall::checkPowerUpsCollision()
 					_config.magnetTimer = 5.f;
 				}
 
-				SoundPlayer::getInstance().play("magnet", 20);
+				SoundPlayer::getInstance().play("magnet", 40);
 				createTextPopup("Great Catch! All Fruits are coming to You!", 5.f);
-
-				//e->destroy();
-
 			}
 			else if (e->getComponent<CAnimation>().animation.getName() == "slowdown")
 			{
@@ -790,17 +751,14 @@ void Scene_FruitFall::checkPowerUpsCollision()
 				if (!_player->hasComponent<CSlowDownEffect>()) {
 					_player->addComponent<CSlowDownEffect>(5.f, 300.f);
 					_config.fruitSpeed -= 100;
-					SoundPlayer::getInstance().play("slowdown", 20);
+					SoundPlayer::getInstance().play("slowdown", 40);
 					createTextPopup("Great Catch! Falling Speed decreased", 5.f);
-
 				}
 
 				if (_config.slowdownEntity == nullptr) {
 					_config.slowdownEntity = e;
 					_config.slowdownTimer = 5.f;
-				}
-				//e->destroy();
-			
+				}			
 			}
 			else if (e->getComponent<CAnimation>().animation.getName() == "pineapple")
 			{
@@ -881,7 +839,6 @@ void Scene_FruitFall::updateMagnetEffect(sf::Time dt)
 
 		_config.magnetEntity->getComponent<CTransform>().pos = magnetPos + sf::Vector2f{ offsetX, offsetY };
 
-
 		_config.magnetTimer -= dt.asSeconds();
 		if (_config.magnetTimer <= 0.f) {
 			_config.magnetEntity->destroy();
@@ -895,11 +852,9 @@ void Scene_FruitFall::updateFrenzyEffect(sf::Time dt)
 	// magnet effect attached to player
 	if (_config.frenzyEntity) {
 		auto frenzyPos = _player->getComponent<CTransform>().pos;
-
 		float offsetY = -100.f;
 
 		_config.frenzyEntity->getComponent<CTransform>().pos = frenzyPos + sf::Vector2f{ 0, offsetY };
-
 
 		_config.frenzyTimer -= dt.asSeconds();
 		if (_config.frenzyTimer < -3.f) {
@@ -921,7 +876,6 @@ void Scene_FruitFall::sAnimation(sf::Time dt)
 			if (anim.animation.getName() == "explosion" && anim.animation.hasEnded()) { // for explosion
 				SoundPlayer::getInstance().play("sayNo2", 20);
 				e->destroy();
-				
 			}
 		}
 	}
@@ -938,7 +892,6 @@ void Scene_FruitFall::sMovement(sf::Time dt)
 			tfm.pos += tfm.vel * dt.asSeconds();
 		}
 	}
-
 }
 
 
@@ -953,8 +906,8 @@ void Scene_FruitFall::sUpdate(sf::Time dt)
 		_playerFront->getComponent<CTransform>().pos = pos;
 	}
 	
-	auto e = _entityManager.getEntities();  // check how many entities are there
-	std::cout << e.size() << "\n";
+	//auto e = _entityManager.getEntities();  // check how many entities are there
+	//std::cout << e.size() << "\n";
 
 	_entityManager.update();
 
@@ -1016,8 +969,6 @@ void Scene_FruitFall::sUpdate(sf::Time dt)
 	if (_config.countdownTime <= 0.f) {
 		if (_isGameOver == false) {
 			MusicPlayer::getInstance().play("gameOver");
-			// SoundPlayer::getInstance().play("win", 15);
-
 		}
 		_isGameOver = true;
 		_config.countdownTime = 0;
@@ -1042,7 +993,6 @@ void Scene_FruitFall::sUpdate(sf::Time dt)
 		updateGameOver(dt);
 		return;
 	}
-
 }
 
 void Scene_FruitFall::updateGameOver(sf::Time dt)
@@ -1086,7 +1036,6 @@ void Scene_FruitFall::updateGamePhase(sf::Time dt)
 	_config.spawnPowerUpTimer += dt.asSeconds();
 
 	_config.gameTime += dt.asSeconds(); // game total time
-
 
 	// Track the last time a popup was created
 	static float lastPopUpTime = 0.f;
@@ -1193,7 +1142,6 @@ void Scene_FruitFall::updateGamePhase(sf::Time dt)
 
 	if (_config.gameTime >= 5 && _config.spawnBombTimer >= _config.spawnBombsInterval) {
 		spawnBombs();
-		//createTextPopup("Watch out! Bombs are falling!", 2.f);
 		_config.spawnBombTimer = 0.f;
 	}
 
@@ -1272,7 +1220,6 @@ void Scene_FruitFall::sRender()
 			}
 		}
 
-
 		if (e->getComponent<CAnimation>().has) {
 			auto& anim = e->getComponent<CAnimation>().animation;
 			auto& tfm = e->getComponent<CTransform>();
@@ -1301,7 +1248,6 @@ void Scene_FruitFall::sRender()
 		text.setFillColor(sf::Color::Black);
 		text.setPosition(90.f, 90.f);
 		_game->window().draw(text);
-
 	}
 
 	// Draw Front basket
@@ -1353,12 +1299,10 @@ void Scene_FruitFall::sRender()
 	}
 
 	sf::Text currentScore("Current Score: " + std::to_string(_config.currentScore), Assets::getInstance().getFont("score"), 30);
-	//centerOrigin(currentScore);
 	currentScore.setPosition(20.f, 180.f);
 	currentScore.setFillColor(sf::Color::Black);
 
 	sf::Text bestScore("Highest Score: " + std::to_string(_config.highestScore), Assets::getInstance().getFont("score"), 30);
-	//centerOrigin(text);
 	bestScore.setPosition(20.f, 250.f);
 	bestScore.setFillColor(sf::Color::Black);
 

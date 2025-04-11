@@ -77,6 +77,18 @@ void GameEngine::sUserInput()
 			}
 		}
 	
+
+	}
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
+		std::cout << "Left key pressed continuously\n";
+
+		// Move the player left as long as the key is held
+	}
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
+		std::cout << "Right key pressed continuously\n";
+		// Move the player right as long as the key is held
 	}
 
 }

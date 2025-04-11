@@ -31,12 +31,12 @@ void Scene_Menu:: init()
 	registerAction(sf::Keyboard::B,			"BACK");
 
 	_menuStrings.push_back("START GAME");
-	_menuStrings.push_back("HINTS");
+	//_menuStrings.push_back("HINTS");
 	_menuStrings.push_back("ACKNOWLEDGEMENTS");
 	_menuStrings.push_back("QUIT");
 
 	_levelPaths.push_back("../assets/level1.txt");
-	_levelPaths.push_back("");
+	//_levelPaths.push_back("");
 	_levelPaths.push_back("");
 	_levelPaths.push_back("");
 
@@ -132,7 +132,6 @@ void Scene_Menu::update(sf::Time dt)
 
 void Scene_Menu::sRender()
 {
-	 
 	sf::View view = _game->window().getView();
 	view.setCenter(_game->window().getSize().x / 2.f, _game->window().getSize().y / 2.f);
 	_game->window().setView(view);
@@ -149,7 +148,7 @@ void Scene_Menu::sRender()
 
 	_game->window().draw(_backgroundSprite); // draw bg
 
-	// ☁️ Clouds
+	// Clouds
 	for (int i = 0; i < 5; ++i) {
 		_game->window().draw(_clouds[i]);
 	}
@@ -185,11 +184,7 @@ void Scene_Menu::sRender()
 		}
 	}
 
-	
-
 	_game->window().draw(footer);
-	//m_game->window().display();
-
 
 	// for draw angel and devil
 	for (auto e : _entityManager.getEntities()) {
@@ -255,7 +250,6 @@ void Scene_Menu::spawnAngelAndDevil()
 	auto& animAngel = angel->addComponent<CAnimation>(Assets::getInstance().getAnimation("angel")).animation;
 	auto& tfmAngel = angel->addComponent<CTransform>(sf::Vector2f(1243.f, 837.f));
 	
-
 
 	auto devil = _entityManager.addEntity("devil");
 	auto& animDevil = devil->addComponent<CAnimation>(Assets::getInstance().getAnimation("devil")).animation;

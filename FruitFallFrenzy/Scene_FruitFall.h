@@ -90,7 +90,6 @@ class Scene_FruitFall : public Scene {
 	void                    spawnBombs();
 	void                    spawnPowerUps();
 	void                    playerMovement(sf::Time dt);
-	void                    annimatePlayer();
 	void                    adjustPlayerPosition(sf::Time dt);
 	void                    adjustFruitPosition(sf::Time dt);
 	void                    checkEntitiesBound();
